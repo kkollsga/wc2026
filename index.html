@@ -71,6 +71,11 @@
             top: 0;
             z-index: 100;
             backdrop-filter: blur(10px);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .header.hidden {
+            transform: translateY(-100%);
         }
 
         .header-title {
@@ -3494,6 +3499,33 @@
         renderTeamPool();
         renderGroups();
         initKnockoutBracket();
+
+        // Scroll detection for top bar hide/show
+        let lastScrollY = window.scrollY;
+        let ticking = false;
+
+        function updateTopBar() {
+            const currentScrollY = window.scrollY;
+            const header = document.querySelector('.header');
+
+            if (currentScrollY > lastScrollY && currentScrollY > 100) {
+                // Scrolling down & past threshold
+                header.classList.add('hidden');
+            } else if (currentScrollY < lastScrollY) {
+                // Scrolling up
+                header.classList.remove('hidden');
+            }
+
+            lastScrollY = currentScrollY;
+            ticking = false;
+        }
+
+        window.addEventListener('scroll', () => {
+            if (!ticking) {
+                window.requestAnimationFrame(updateTopBar);
+                ticking = true;
+            }
+        });
     </script>
 </body>
 </html>
