@@ -1,0 +1,3499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FIFA World Cup 2026 - Group Draw Visualizer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css"/>
+    <style>
+        :root {
+            --bg-dark: #0a0f1a;
+            --bg-card: #121a2d;
+            --bg-card-hover: #1a2640;
+            --accent-gold: #d4af37;
+            --accent-gold-dim: #a08520;
+            --pot1: #9b2335;
+            --pot2: #0066b2;
+            --pot3: #007a33;
+            --pot4: #6b3fa0;
+            --path-blue: #1e90ff;
+            --path-cyan: #00ced1;
+            --path-red: #dc143c;
+            --path-green: #32cd32;
+            --text-primary: #ffffff;
+            --text-secondary: #8a9bb8;
+            --border-color: #2a3a5a;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Barlow', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(ellipse at 20% 20%, rgba(155, 35, 53, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(0, 102, 178, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(212, 175, 55, 0.05) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .header {
+            background: linear-gradient(180deg, rgba(212, 175, 55, 0.1) 0%, transparent 100%);
+            border-bottom: 2px solid var(--accent-gold);
+            padding: 20px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .header h1 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2.5rem;
+            letter-spacing: 3px;
+            background: linear-gradient(135deg, var(--accent-gold) 0%, #fff 50%, var(--accent-gold) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-subtitle {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .main-container {
+            padding: 30px;
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+
+        .top-bar {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .stats-panel {
+            background: var(--bg-card);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            padding: 15px 25px;
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.8rem;
+            color: var(--accent-gold);
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .controls-panel {
+            background: var(--bg-card);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            padding: 12px 20px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 6px;
+            font-family: 'Barlow', sans-serif;
+            font-weight: 600;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-gold) 0%, var(--accent-gold-dim) 100%);
+            color: #000;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--bg-card-hover);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: #2a3a5a;
+            border-color: var(--accent-gold-dim);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-qualifier {
+            background: linear-gradient(135deg, #9b59b6 0%, #6b3fa0 100%);
+            color: white;
+        }
+
+        .btn-qualifier:hover {
+            box-shadow: 0 4px 15px rgba(155, 89, 182, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* Team Pool Section */
+        .team-pool-section {
+            background: var(--bg-card);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+
+        .team-pool-header {
+            background: linear-gradient(90deg, rgba(212, 175, 55, 0.2) 0%, transparent 100%);
+            padding: 15px 25px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .team-pool-header h2 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.4rem;
+            letter-spacing: 2px;
+            color: var(--accent-gold);
+        }
+
+        .team-pool-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0;
+        }
+
+        .pot-column {
+            padding: 20px;
+            border-right: 1px solid var(--border-color);
+        }
+
+        .pot-column:last-child {
+            border-right: none;
+        }
+
+        .pot-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .pot-badge {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            padding: 5px 14px;
+            border-radius: 4px;
+            color: white;
+        }
+
+        .pot-badge.pot-1 { background: var(--pot1); }
+        .pot-badge.pot-2 { background: var(--pot2); }
+        .pot-badge.pot-3 { background: var(--pot3); }
+        .pot-badge.pot-4 { background: var(--pot4); }
+
+        .pot-count {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .pot-teams {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .team-pill {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            background: linear-gradient(135deg, var(--bg-card-hover) 0%, rgba(26, 38, 64, 0.8) 100%);
+            border-radius: 8px;
+            cursor: grab;
+            transition: all 0.2s ease;
+            border: 1px solid var(--border-color);
+            user-select: none;
+            position: relative;
+            z-index: 1;
+        }
+
+        .team-pill:hover {
+            background: linear-gradient(135deg, #243050 0%, #1a2640 100%);
+            border-color: var(--accent-gold-dim);
+            transform: translateX(4px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            z-index: 1;
+        }
+
+        .team-pill.dragging {
+            opacity: 0.5;
+            cursor: grabbing;
+        }
+
+        .team-pill.pot-1 { border-left: 4px solid var(--pot1); }
+        .team-pill.pot-2 { border-left: 4px solid var(--pot2); }
+        .team-pill.pot-3 { border-left: 4px solid var(--pot3); }
+        .team-pill.pot-4 { border-left: 4px solid var(--pot4); }
+
+        .team-pill .fi {
+            width: 28px;
+            height: 20px;
+            border-radius: 3px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            flex-shrink: 0;
+        }
+
+        .team-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .team-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .team-elo {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .team-confederation {
+            font-size: 0.65rem;
+            padding: 3px 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            color: var(--text-secondary);
+            flex-shrink: 0;
+        }
+
+        .preassigned-badge {
+            background: var(--accent-gold);
+            color: #000;
+            font-size: 0.65rem;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            flex-shrink: 0;
+        }
+
+        .slot-num {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            background: var(--bg-dark);
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            flex-shrink: 0;
+        }
+
+        /* Qualifier pill styling */
+        .team-pill.qualifier {
+            background: linear-gradient(135deg, rgba(107, 63, 160, 0.3) 0%, rgba(26, 38, 64, 0.8) 100%);
+            border-color: rgba(155, 89, 182, 0.5);
+            cursor: default;
+        }
+
+        .team-pill.qualifier:hover {
+            border-color: #9b59b6;
+            transform: none;
+        }
+
+        /* Qualified team styling */
+        .team-pill.qualified {
+            cursor: pointer;
+        }
+
+        .team-pill.qualified .team-name {
+            color: #9b59b6;
+            font-weight: 700;
+        }
+
+        .team-pill.qualified .qualified-indicator {
+            background: linear-gradient(135deg, #9b59b6 0%, #6b3fa0 100%);
+            color: white;
+            font-size: 0.6rem;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        /* Match results dropdown */
+        .match-results-dropdown {
+            background: var(--bg-dark);
+            border: 2px solid #9b59b6;
+            border-radius: 8px;
+            padding: 10px 12px;
+            z-index: 10000;
+            box-shadow: 0 8px 24px rgba(155, 89, 182, 0.4);
+            min-width: 200px;
+        }
+
+        .match-results-header {
+            font-weight: 700;
+            color: #9b59b6;
+            margin-bottom: 8px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 4px;
+        }
+
+        .match-result {
+            font-size: 0.8rem;
+            padding: 4px 0;
+            line-height: 1.5;
+        }
+
+        .match-result.final {
+            margin-top: 4px;
+            padding-top: 8px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .qualified-code {
+            color: #9b59b6;
+        }
+
+        .qualifier-flags {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+
+        .qualifier-flags .fi {
+            width: 20px;
+            height: 14px;
+            border-radius: 2px;
+        }
+
+        .qualifier-teams {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .qualifier-badge {
+            background: linear-gradient(135deg, #9b59b6 0%, #6b3fa0 100%);
+            color: white;
+            font-size: 0.6rem;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        /* Groups Section */
+        .groups-section {
+            background: var(--bg-card);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .groups-header {
+            background: linear-gradient(90deg, rgba(212, 175, 55, 0.2) 0%, transparent 100%);
+            padding: 15px 25px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .groups-header h2 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.4rem;
+            letter-spacing: 2px;
+            color: var(--accent-gold);
+        }
+
+        .sort-controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .sort-btn {
+            padding: 6px 12px;
+            font-size: 0.75rem;
+            background: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .sort-btn:hover, .sort-btn.active {
+            border-color: var(--accent-gold);
+            color: var(--accent-gold);
+        }
+
+        .groups-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            padding: 20px;
+        }
+
+        .group-card {
+            background: var(--bg-dark);
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .group-card:hover {
+            border-color: var(--accent-gold-dim);
+        }
+
+        .group-card.path-blue { border-top: 4px solid var(--path-blue); }
+        .group-card.path-cyan { border-top: 4px solid var(--path-cyan); }
+        .group-card.path-red { border-top: 4px solid var(--path-red); }
+        .group-card.path-green { border-top: 4px solid var(--path-green); }
+
+        .group-header {
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: linear-gradient(90deg, rgba(212, 175, 55, 0.1) 0%, transparent 100%);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .group-name {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+        }
+
+        .group-elo {
+            font-size: 0.8rem;
+            color: var(--accent-gold);
+            font-weight: 600;
+        }
+
+        .path-badge {
+            font-size: 0.6rem;
+            padding: 3px 8px;
+            border-radius: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .path-badge.blue { background: var(--path-blue); }
+        .path-badge.cyan { background: var(--path-cyan); }
+        .path-badge.red { background: var(--path-red); }
+        .path-badge.green { background: var(--path-green); }
+
+        .group-slots {
+            padding: 10px;
+        }
+
+        .group-slot {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 10px;
+            margin-bottom: 6px;
+            background: var(--bg-card);
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            min-height: 42px;
+            transition: all 0.2s ease;
+        }
+
+        .group-slot:last-child {
+            margin-bottom: 0;
+        }
+
+        .group-slot.drag-over {
+            border-color: var(--accent-gold);
+            background: rgba(212, 175, 55, 0.1);
+        }
+
+        .group-slot.invalid {
+            border-color: var(--danger);
+            background: rgba(220, 53, 69, 0.1);
+        }
+
+        .slot-label {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            width: 28px;
+            flex-shrink: 0;
+        }
+
+        .slot-empty {
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            opacity: 0.5;
+        }
+
+        .slot-team {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .slot-team .fi {
+            width: 24px;
+            height: 17px;
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        .slot-team-name {
+            font-weight: 600;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .slot-team-elo {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+        }
+
+        .slot-team-conf {
+            font-size: 0.55rem;
+            padding: 2px 5px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            margin-left: auto;
+            flex-shrink: 0;
+        }
+
+        .remove-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 0.8rem;
+        }
+
+        .remove-btn:hover {
+            color: var(--danger);
+            background: rgba(220, 53, 69, 0.2);
+        }
+
+        /* Validation panel */
+        .validation-panel {
+            background: var(--bg-card);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            padding: 12px 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+            flex: 1;
+        }
+
+        .validation-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8rem;
+            padding: 6px 12px;
+            border-radius: 6px;
+        }
+
+        .validation-item.error {
+            background: rgba(220, 53, 69, 0.2);
+            color: #ff6b6b;
+        }
+
+        .validation-item.success {
+            background: rgba(40, 167, 69, 0.2);
+            color: #51cf66;
+        }
+
+        .validation-item.warning {
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffd43b;
+        }
+
+        /* Path legend in header */
+        .stat-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .stat-selector label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .stat-dropdown {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-family: 'Barlow', sans-serif;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .stat-dropdown:hover {
+            border-color: var(--accent-gold);
+            background: var(--bg-card-hover);
+        }
+
+        .stat-dropdown:focus {
+            outline: none;
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
+        }
+
+        .legend {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+        }
+
+        .legend-color {
+            width: 14px;
+            height: 14px;
+            border-radius: 3px;
+        }
+
+        /* Knockout Bracket Styles */
+        .knockout-section {
+            margin-top: 40px;
+            overflow-x: auto;
+        }
+
+        .knockout-header {
+            padding: 20px;
+            background: var(--bg-dark);
+            border-bottom: 2px solid var(--accent-gold);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .knockout-header h2 {
+            margin: 0;
+            color: var(--text-primary);
+        }
+
+        .bracket-tree {
+            display: flex;
+            justify-content: center;
+            padding: 40px 20px;
+            gap: 20px;
+            min-width: 1200px;
+        }
+
+        .bracket-side {
+            display: flex;
+            gap: 20px;
+        }
+
+        .left-side {
+            flex-direction: row;
+        }
+
+        .right-side {
+            flex-direction: row-reverse;
+        }
+
+        .bracket-column {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            gap: 10px;
+        }
+
+        .bracket-match {
+            background: var(--bg-dark);
+            border-radius: 6px;
+            border-left: 3px solid;
+            padding: 8px;
+            min-width: 200px;
+            transition: all 0.2s;
+        }
+
+        .bracket-match:hover {
+            transform: translateX(2px);
+            box-shadow: 0 2px 8px rgba(234, 179, 8, 0.2);
+        }
+
+        .bracket-match.blue { border-left-color: #3b82f6; }
+        .bracket-match.cyan { border-left-color: #06b6d4; }
+        .bracket-match.green { border-left-color: #10b981; }
+        .bracket-match.red { border-left-color: #ef4444; }
+        .bracket-match.semi { border-left-color: #a855f7; }
+        .bracket-match.final { border-left-color: var(--accent-gold); border-left-width: 4px; }
+        .bracket-match.bronze { border-left-color: #cd7f32; }
+
+        .bracket-match .team {
+            padding: 6px 10px;
+            margin: 2px 0;
+            background: var(--bg-card);
+            border-radius: 4px;
+            font-size: 0.85rem;
+            color: var(--text-primary);
+            transition: all 0.2s;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .bracket-match .team.filled {
+            background: rgba(234, 179, 8, 0.15);
+            color: var(--accent-gold);
+            font-weight: 500;
+        }
+
+        .bracket-match .team .fi {
+            margin-right: 6px;
+        }
+
+        .source-label {
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+            opacity: 0.6;
+            font-weight: 400;
+            margin-right: 8px;
+            padding: 2px 5px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 3px;
+            flex-shrink: 0;
+        }
+
+        .bracket-center {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 60px;
+            padding: 0 30px;
+        }
+
+        .semifinal-matches,
+        .final-matches {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .final-matches {
+            align-items: center;
+        }
+
+        .bracket-match.final .team,
+        .bracket-match.bronze .team {
+            font-size: 0.9rem;
+            padding: 8px 12px;
+        }
+
+        .match-with-title {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .match-title {
+            margin: 0;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--accent-gold);
+            text-align: center;
+            letter-spacing: 0.5px;
+        }
+
+        .bracket-match .team .score {
+            margin-left: auto;
+            font-weight: bold;
+            color: var(--text-primary);
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 0.9rem;
+        }
+
+        .bracket-match .team.winner {
+            font-weight: bold;
+            background: rgba(234, 179, 8, 0.25);
+            color: var(--accent-gold);
+        }
+
+        @media (max-width: 1400px) {
+            .groups-container {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .team-pool-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .pot-column:nth-child(2) {
+                border-right: none;
+            }
+            .pot-column:nth-child(3) {
+                border-right: 1px solid var(--border-color);
+            }
+        }
+
+        @media (max-width: 1100px) {
+            .groups-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 800px) {
+            .team-pool-grid {
+                grid-template-columns: 1fr;
+            }
+            .pot-column {
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+            }
+            .groups-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-gold-dim);
+        }
+
+        /* Animation for qualification draw */
+        @keyframes qualifyPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .qualifying {
+            animation: qualifyPulse 0.3s ease-in-out 3;
+        }
+
+        /* Info Panel Styles */
+        .info-panel {
+            margin-bottom: 25px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .info-card {
+            background: var(--bg-card);
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .info-card-header {
+            background: linear-gradient(90deg, rgba(212, 175, 55, 0.15) 0%, transparent 100%);
+            padding: 10px 15px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--accent-gold);
+        }
+
+        .info-card-content {
+            padding: 12px 15px;
+            font-size: 0.8rem;
+        }
+
+        .info-card .path-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .info-card .path-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-card .path-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .constraint-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .constraint-row .fi {
+            width: 20px;
+            height: 14px;
+            border-radius: 2px;
+        }
+
+        .constraint-note {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            background: var(--bg-dark);
+            padding: 8px 10px;
+            border-radius: 6px;
+            margin-top: 8px;
+            font-style: italic;
+        }
+
+        .rule-row {
+            margin-bottom: 6px;
+            color: var(--text-secondary);
+        }
+
+        .rule-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .rule-row strong {
+            color: var(--text-primary);
+        }
+
+        @media (max-width: 1100px) {
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-title">
+            <div>
+                <h1>FIFA WORLD CUP 2026</h1>
+                <div class="header-subtitle">Group Stage Draw Simulator</div>
+            </div>
+        </div>
+        <div class="stat-selector">
+            <label for="statDisplay">Display:</label>
+            <select id="statDisplay" class="stat-dropdown">
+                <option value="elo" selected>ELO Rating</option>
+                <option value="change">Form (Change)</option>
+                <option value="talent">Talent</option>
+            </select>
+        </div>
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background: var(--path-blue)"></div>
+                <span>Blue: E,I,F</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: var(--path-cyan)"></div>
+                <span>Cyan: H,D,G</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: var(--path-red)"></div>
+                <span>Red: J,B,K</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: var(--path-green)"></div>
+                <span>Green: C,A,L</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-container">
+        <!-- Top Bar: Stats + Controls + Validation -->
+        <div class="top-bar">
+            <div class="stats-panel">
+                <div class="stat-item">
+                    <div class="stat-value" id="teamsDrawn">0</div>
+                    <div class="stat-label">Drawn</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="teamsRemaining">48</div>
+                    <div class="stat-label">Remaining</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="avgElo">0</div>
+                    <div class="stat-label">Avg ELO</div>
+                </div>
+            </div>
+
+            <div class="controls-panel">
+                <button class="btn btn-primary" id="preassignBtn">
+                    🏟️ Place Hosts
+                </button>
+                <button class="btn btn-primary" id="randomDrawBtn">
+                    🎲 Random Draw
+                </button>
+                <button class="btn btn-danger" id="clearBtn">
+                    🗑️ Clear All
+                </button>
+            </div>
+
+            <div class="validation-panel" id="validationPanel">
+                <div class="validation-item success">✓ Ready to draw</div>
+            </div>
+        </div>
+
+        <!-- Team Pool Section -->
+        <section class="team-pool-section">
+            <div class="team-pool-header">
+                <h2>🌍 Available Teams</h2>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <button class="btn btn-qualifier" id="qualifyBtn">
+                        ⚽ Simulate Qualifications
+                    </button>
+                    <div class="sort-controls">
+                        <span style="font-size: 0.8rem; color: var(--text-secondary);">Order:</span>
+                        <button class="sort-btn active" id="poolSortSlot">Slot</button>
+                        <button class="sort-btn" id="poolSortElo">ELO ↓</button>
+                    </div>
+                </div>
+            </div>
+            <div class="team-pool-grid" id="teamPool"></div>
+        </section>
+
+        <!-- Draw Rules Info Panel -->
+        <section class="info-panel">
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="info-card-header">🛤️ Match Paths</div>
+                    <div class="info-card-content">
+                        <div class="path-row"><span class="path-dot" style="background: var(--path-blue)"></span><strong>Blue:</strong> E, I, F winners</div>
+                        <div class="path-row"><span class="path-dot" style="background: var(--path-cyan)"></span><strong>Cyan:</strong> H, D, G winners</div>
+                        <div class="path-row"><span class="path-dot" style="background: var(--path-red)"></span><strong>Red:</strong> J, B, K winners</div>
+                        <div class="path-row"><span class="path-dot" style="background: var(--path-green)"></span><strong>Green:</strong> C, A, L winners</div>
+                    </div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-header">⚖️ Path Constraints</div>
+                    <div class="info-card-content">
+                        <div class="constraint-row">
+                            <span class="fi fi-es"></span><span class="fi fi-ar"></span>
+                            <span>Spain & Argentina → separate bracket sides</span>
+                        </div>
+                        <div class="constraint-row">
+                            <span class="fi fi-fr"></span><span class="fi fi-gb-eng"></span>
+                            <span>France & England → remaining two paths</span>
+                        </div>
+                        <div class="constraint-note">
+                            If ESP→Blue, ARG→Red, then FRA/ENG→Cyan & Green
+                        </div>
+                    </div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-header">🌐 Confederation Rules</div>
+                    <div class="info-card-content">
+                        <div class="rule-row">• Max <strong>1 team</strong> per confederation per group</div>
+                        <div class="rule-row">• Exception: <strong>UEFA max 2</strong> teams per group</div>
+                        <div class="rule-row">• Hosts 🇨🇦🇲🇽🇺🇸 pre-assigned to A1, B1, D1</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Groups Section -->
+        <section class="groups-section">
+            <div class="groups-header">
+                <h2>🏆 Groups A - L</h2>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <button class="btn btn-qualifier" id="simulateGroupsBtn" disabled>
+                        ⚽ Simulate Groups
+                    </button>
+                    <div class="sort-controls">
+                        <span style="font-size: 0.8rem; color: var(--text-secondary);">Sort:</span>
+                        <button class="sort-btn active" id="sortName">Name</button>
+                        <button class="sort-btn" id="sortElo">ELO ↓</button>
+                    </div>
+                </div>
+            </div>
+            <div class="groups-container" id="groupsContainer"></div>
+        </section>
+
+        <!-- Knockout Bracket Section -->
+        <section class="knockout-section">
+            <div class="knockout-header">
+                <h2>🏅 Knockout Stage</h2>
+                <button class="btn btn-qualifier" id="simulateKnockoutBtn" disabled>⚽ Simulate Round of 32</button>
+            </div>
+            <div class="bracket-tree">
+                <!-- Left Side -->
+                <div class="bracket-side left-side">
+                    <!-- R32 Column -->
+                    <div class="bracket-column r32">
+                        <div class="bracket-match blue"><div class="team team-slot" data-original="1E"><span class="source-label">1E</span></div><div class="team team-slot" data-original="3ABCDF"><span class="source-label">3ABCDF</span></div></div>
+                        <div class="bracket-match blue"><div class="team team-slot" data-original="1I"><span class="source-label">1I</span></div><div class="team team-slot" data-original="3CDFGH"><span class="source-label">3CDFGH</span></div></div>
+                        <div class="bracket-match blue"><div class="team team-slot" data-original="2A"><span class="source-label">2A</span></div><div class="team team-slot" data-original="2B"><span class="source-label">2B</span></div></div>
+                        <div class="bracket-match blue"><div class="team team-slot" data-original="1F"><span class="source-label">1F</span></div><div class="team team-slot" data-original="2C"><span class="source-label">2C</span></div></div>
+                        <div class="bracket-match cyan"><div class="team team-slot" data-original="2K"><span class="source-label">2K</span></div><div class="team team-slot" data-original="2L"><span class="source-label">2L</span></div></div>
+                        <div class="bracket-match cyan"><div class="team team-slot" data-original="1H"><span class="source-label">1H</span></div><div class="team team-slot" data-original="2J"><span class="source-label">2J</span></div></div>
+                        <div class="bracket-match cyan"><div class="team team-slot" data-original="1D"><span class="source-label">1D</span></div><div class="team team-slot" data-original="3BEFIJ"><span class="source-label">3BEFIJ</span></div></div>
+                        <div class="bracket-match cyan"><div class="team team-slot" data-original="1G"><span class="source-label">1G</span></div><div class="team team-slot" data-original="3AEHIJ"><span class="source-label">3AEHIJ</span></div></div>
+                    </div>
+                    <!-- R16 Column -->
+                    <div class="bracket-column r16">
+                        <div class="bracket-match blue"><div class="team team-slot" data-original="W74">W74</div><div class="team team-slot" data-original="W77">W77</div></div>
+                        <div class="bracket-match blue"><div class="team team-slot" data-original="W73">W73</div><div class="team team-slot" data-original="W75">W75</div></div>
+                        <div class="bracket-match cyan"><div class="team team-slot" data-original="W83">W83</div><div class="team team-slot" data-original="W84">W84</div></div>
+                        <div class="bracket-match cyan"><div class="team team-slot" data-original="W81">W81</div><div class="team team-slot" data-original="W82">W82</div></div>
+                    </div>
+                    <!-- QF Column -->
+                    <div class="bracket-column qf">
+                        <div class="bracket-match blue"><div class="team team-slot" data-original="W89">W89</div><div class="team team-slot" data-original="W90">W90</div></div>
+                        <div class="bracket-match cyan"><div class="team team-slot" data-original="W93">W93</div><div class="team team-slot" data-original="W94">W94</div></div>
+                    </div>
+                </div>
+
+                <!-- Center - Finals -->
+                <div class="bracket-center">
+                    <div class="semifinal-matches">
+                        <div class="match-with-title">
+                            <h4 class="match-title">Semi-final 1</h4>
+                            <div class="bracket-match semi"><div class="team team-slot" data-original="W97">W97</div><div class="team team-slot" data-original="W98">W98</div></div>
+                        </div>
+                        <div class="match-with-title">
+                            <h4 class="match-title">Semi-final 2</h4>
+                            <div class="bracket-match semi"><div class="team team-slot" data-original="W99">W99</div><div class="team team-slot" data-original="W100">W100</div></div>
+                        </div>
+                    </div>
+                    <div class="final-matches">
+                        <div class="match-with-title">
+                            <h4 class="match-title">🏆 Final</h4>
+                            <div class="bracket-match final"><div class="team team-slot" data-original="W101">W101</div><div class="team team-slot" data-original="W102">W102</div></div>
+                        </div>
+                        <div class="match-with-title">
+                            <h4 class="match-title">🥉 Bronze Final</h4>
+                            <div class="bracket-match bronze"><div class="team team-slot" data-original="L101">L101</div><div class="team team-slot" data-original="L102">L102</div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Side -->
+                <div class="bracket-side right-side">
+                    <!-- R32 Column -->
+                    <div class="bracket-column r32">
+                        <div class="bracket-match green"><div class="team team-slot" data-original="1C"><span class="source-label">1C</span></div><div class="team team-slot" data-original="2F"><span class="source-label">2F</span></div></div>
+                        <div class="bracket-match green"><div class="team team-slot" data-original="2E"><span class="source-label">2E</span></div><div class="team team-slot" data-original="2I"><span class="source-label">2I</span></div></div>
+                        <div class="bracket-match green"><div class="team team-slot" data-original="1A"><span class="source-label">1A</span></div><div class="team team-slot" data-original="3CEFHI"><span class="source-label">3CEFHI</span></div></div>
+                        <div class="bracket-match green"><div class="team team-slot" data-original="1L"><span class="source-label">1L</span></div><div class="team team-slot" data-original="3EHIJK"><span class="source-label">3EHIJK</span></div></div>
+                        <div class="bracket-match red"><div class="team team-slot" data-original="1J"><span class="source-label">1J</span></div><div class="team team-slot" data-original="2H"><span class="source-label">2H</span></div></div>
+                        <div class="bracket-match red"><div class="team team-slot" data-original="2D"><span class="source-label">2D</span></div><div class="team team-slot" data-original="2G"><span class="source-label">2G</span></div></div>
+                        <div class="bracket-match red"><div class="team team-slot" data-original="1B"><span class="source-label">1B</span></div><div class="team team-slot" data-original="3EFGIJ"><span class="source-label">3EFGIJ</span></div></div>
+                        <div class="bracket-match red"><div class="team team-slot" data-original="1K"><span class="source-label">1K</span></div><div class="team team-slot" data-original="3DEIJL"><span class="source-label">3DEIJL</span></div></div>
+                    </div>
+                    <!-- R16 Column -->
+                    <div class="bracket-column r16">
+                        <div class="bracket-match green"><div class="team team-slot" data-original="W76">W76</div><div class="team team-slot" data-original="W78">W78</div></div>
+                        <div class="bracket-match green"><div class="team team-slot" data-original="W79">W79</div><div class="team team-slot" data-original="W80">W80</div></div>
+                        <div class="bracket-match red"><div class="team team-slot" data-original="W86">W86</div><div class="team team-slot" data-original="W88">W88</div></div>
+                        <div class="bracket-match red"><div class="team team-slot" data-original="W85">W85</div><div class="team team-slot" data-original="W87">W87</div></div>
+                    </div>
+                    <!-- QF Column -->
+                    <div class="bracket-column qf">
+                        <div class="bracket-match green"><div class="team team-slot" data-original="W91">W91</div><div class="team team-slot" data-original="W92">W92</div></div>
+                        <div class="bracket-match red"><div class="team team-slot" data-original="W95">W95</div><div class="team team-slot" data-original="W96">W96</div></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Confirmed teams data with slot positions
+        const confirmedTeams = [
+            // Pot 1 (slot order from dataset)
+            { name: "Canada", code: "ca", elo: 1802, change: 18, talent_base: 70, pot: 1, slot: 1, confederation: "CONCACAF", preassigned: "B1" },
+            { name: "Mexico", code: "mx", elo: 1835, change: 66, talent_base: 70, pot: 1, slot: 2, confederation: "CONCACAF", preassigned: "A1" },
+            { name: "USA", code: "us", elo: 1747, change: -12, talent_base: 75, pot: 1, slot: 3, confederation: "CONCACAF", preassigned: "D1" },
+            { name: "Spain", code: "es", elo: 2171, change: -6, talent_base: 84, pot: 1, slot: 4, confederation: "UEFA" },
+            { name: "Argentina", code: "ar", elo: 2113, change: 5, talent_base: 82, pot: 1, slot: 5, confederation: "CONMEBOL" },
+            { name: "France", code: "fr", elo: 2062, change: 7, talent_base: 87, pot: 1, slot: 6, confederation: "UEFA" },
+            { name: "England", code: "gb-eng", elo: 2042, change: 36, talent_base: 88, pot: 1, slot: 7, confederation: "UEFA" },
+            { name: "Brazil", code: "br", elo: 1978, change: -18, talent_base: 86, pot: 1, slot: 8, confederation: "CONMEBOL" },
+            { name: "Portugal", code: "pt", elo: 1976, change: -17, talent_base: 83, pot: 1, slot: 9, confederation: "UEFA" },
+            { name: "Netherlands", code: "nl", elo: 1959, change: 21, talent_base: 82, pot: 1, slot: 10, confederation: "UEFA" },
+            { name: "Belgium", code: "be", elo: 1849, change: -1, talent_base: 82, pot: 1, slot: 11, confederation: "UEFA" },
+            { name: "Germany", code: "de", elo: 1910, change: -61, talent_base: 82, pot: 1, slot: 12, confederation: "UEFA" },
+            // Pot 2
+            { name: "Croatia", code: "hr", elo: 1933, change: 47, talent_base: 76, pot: 2, slot: 1, confederation: "UEFA" },
+            { name: "Morocco", code: "ma", elo: 1828, change: 26, talent_base: 76, pot: 2, slot: 2, confederation: "CAF" },
+            { name: "Colombia", code: "co", elo: 1998, change: 21, talent_base: 74, pot: 2, slot: 3, confederation: "CONMEBOL" },
+            { name: "Uruguay", code: "uy", elo: 1890, change: -58, talent_base: 78, pot: 2, slot: 4, confederation: "CONMEBOL" },
+            { name: "Switzerland", code: "ch", elo: 1897, change: 83, talent_base: 76, pot: 2, slot: 5, confederation: "UEFA" },
+            { name: "Japan", code: "jp", elo: 1878, change: -11, talent_base: 74, pot: 2, slot: 6, confederation: "AFC" },
+            { name: "Senegal", code: "sn", elo: 1803, change: 33, talent_base: 72, pot: 2, slot: 7, confederation: "CAF" },
+            { name: "Iran", code: "ir", elo: 1754, change: -83, talent_base: 65, pot: 2, slot: 8, confederation: "AFC" },
+            { name: "Korea Republic", code: "kr", elo: 1784, change: 10, talent_base: 72, pot: 2, slot: 9, confederation: "AFC" },
+            { name: "Ecuador", code: "ec", elo: 1933, change: 23, talent_base: 74, pot: 2, slot: 10, confederation: "CONMEBOL" },
+            { name: "Austria", code: "at", elo: 1818, change: -53, talent_base: 74, pot: 2, slot: 11, confederation: "UEFA" },
+            { name: "Australia", code: "au", elo: 1774, change: 55, talent_base: 64, pot: 2, slot: 12, confederation: "AFC" },
+            // Pot 3
+            { name: "Norway", code: "no", elo: 1922, change: 116, talent_base: 78, pot: 3, slot: 1, confederation: "UEFA" },
+            { name: "Panama", code: "pa", elo: 1742, change: 16, talent_base: 63, pot: 3, slot: 2, confederation: "CONCACAF" },
+            { name: "Egypt", code: "eg", elo: 1645, change: -12, talent_base: 75, pot: 3, slot: 3, confederation: "CAF" },
+            { name: "Algeria", code: "dz", elo: 1718, change: 33, talent_base: 71, pot: 3, slot: 4, confederation: "CAF" },
+            { name: "Scotland", code: "gb-sct", elo: 1790, change: 31, talent_base: 74, pot: 3, slot: 5, confederation: "UEFA" },
+            { name: "Paraguay", code: "py", elo: 1833, change: 58, talent_base: 69, pot: 3, slot: 6, confederation: "CONMEBOL" },
+            { name: "Tunisia", code: "tn", elo: 1620, change: 22, talent_base: 66, pot: 3, slot: 7, confederation: "CAF" },
+            { name: "Côte d'Ivoire", code: "ci", elo: 1607, change: 28, talent_base: 73, pot: 3, slot: 8, confederation: "CAF" },
+            { name: "Uzbekistan", code: "uz", elo: 1735, change: 50, talent_base: 63, pot: 3, slot: 9, confederation: "AFC" },
+            { name: "Qatar", code: "qa", elo: 1460, change: -93, talent_base: 62, pot: 3, slot: 10, confederation: "AFC" },
+            { name: "Saudi Arabia", code: "sa", elo: 1579, change: 42, talent_base: 64, pot: 3, slot: 11, confederation: "AFC" },
+            { name: "South Africa", code: "za", elo: 1784, change: 10, talent_base: 65, pot: 3, slot: 12, confederation: "CAF" },
+            // Pot 4 - Confirmed (slots 1-6 only)
+            { name: "Jordan", code: "jo", elo: 1610, change: -8, talent_base: 57, pot: 4, slot: 1, confederation: "AFC" },
+            { name: "Cabo Verde", code: "cv", elo: 1560, change: 89, talent_base: 65, pot: 4, slot: 2, confederation: "CAF" },
+            { name: "Ghana", code: "gh", elo: 1509, change: 80, talent_base: 73, pot: 4, slot: 3, confederation: "CAF" },
+            { name: "Curaçao", code: "cw", elo: 1467, change: 131, talent_base: 61, pot: 4, slot: 4, confederation: "CONCACAF" },
+            { name: "Haiti", code: "ht", elo: 1542, change: 4, talent_base: 62, pot: 4, slot: 5, confederation: "CONCACAF" },
+            { name: "New Zealand", code: "nz", elo: 1586, change: 2, talent_base: 61, pot: 4, slot: 6, confederation: "OFC" }
+        ];
+
+        // Undecided qualifier spots (6 total)
+        const qualifierSpots = [
+            {
+                id: 'uefa-playoff-a',
+                pot: 4,
+                slot: 7,
+                teams: [
+                    { name: "Italy", code: "it", elo: 1859, change: -71, talent_base: 81, confederation: "UEFA" },
+                    { name: "Wales", code: "gb-wls", elo: 1715, change: -17, talent_base: 69, confederation: "UEFA" },
+                    { name: "Northern Ireland", code: "gb-nir", elo: 1603, change: 43, talent_base: 65, confederation: "UEFA" },
+                    { name: "Bosnia Herzegovina", code: "ba", elo: 1571, change: 87, talent_base: 69, confederation: "UEFA" }
+                ]
+            },
+            {
+                id: 'uefa-playoff-b',
+                pot: 4,
+                slot: 8,
+                teams: [
+                    { name: "Ukraine", code: "ua", elo: 1802, change: 0, talent_base: 73, confederation: "UEFA" },
+                    { name: "Poland", code: "pl", elo: 1735, change: 36, talent_base: 75, confederation: "UEFA" },
+                    { name: "Albania", code: "al", elo: 1664, change: 29, talent_base: 68, confederation: "UEFA" },
+                    { name: "Sweden", code: "se", elo: 1660, change: -84, talent_base: 76, confederation: "UEFA" }
+                ]
+            },
+            {
+                id: 'uefa-playoff-c',
+                pot: 4,
+                slot: 9,
+                teams: [
+                    { name: "Turkey", code: "tr", elo: 1880, change: 106, talent_base: 74, confederation: "UEFA" },
+                    { name: "Kosovo", code: "xk", elo: 1714, change: 160, talent_base: 70, confederation: "UEFA" },
+                    { name: "Slovakia", code: "sk", elo: 1688, change: -14, talent_base: 71, confederation: "UEFA" },
+                    { name: "Romania", code: "ro", elo: 1642, change: -77, talent_base: 67, confederation: "UEFA" }
+                ]
+            },
+            {
+                id: 'uefa-playoff-d',
+                pot: 4,
+                slot: 10,
+                teams: [
+                    { name: "Denmark", code: "dk", elo: 1864, change: 8, talent_base: 74, confederation: "UEFA" },
+                    { name: "Czech Republic", code: "cz", elo: 1731, change: -23, talent_base: 71, confederation: "UEFA" },
+                    { name: "Ireland", code: "ie", elo: 1688, change: 80, talent_base: 69, confederation: "UEFA" },
+                    { name: "North Macedonia", code: "mk", elo: 1592, change: -18, talent_base: 63, confederation: "UEFA" }
+                ]
+            },
+            {
+                id: 'intercontinental-playoff-a',
+                pot: 4,
+                slot: 11,
+                teams: [
+                    { name: "DR Congo", code: "cd", elo: 1616, change: 75, talent_base: 68, confederation: "CAF" },
+                    { name: "Jamaica", code: "jm", elo: 1527, change: -48, talent_base: 65, confederation: "CONCACAF" },
+                    { name: "New Caledonia", code: "nc", elo: 1295, change: 33, talent_base: 42, confederation: "OFC" }
+                ]
+            },
+            {
+                id: 'intercontinental-playoff-b',
+                pot: 4,
+                slot: 12,
+                teams: [
+                    { name: "Bolivia", code: "bo", elo: 1675, change: 18, talent_base: 61, confederation: "CONMEBOL" },
+                    { name: "Iraq", code: "iq", elo: 1597, change: -70, talent_base: 59, confederation: "AFC" },
+                    { name: "Suriname", code: "sr", elo: 1440, change: 84, talent_base: 64, confederation: "CONCACAF" }
+                ]
+            }
+        ];
+
+        // Group paths mapping
+        const groupPaths = {
+            'A': 'green', 'B': 'red', 'C': 'green', 'D': 'cyan',
+            'E': 'blue', 'F': 'blue', 'G': 'cyan', 'H': 'cyan',
+            'I': 'blue', 'J': 'red', 'K': 'red', 'L': 'green'
+        };
+
+        // Path groupings for knockout bracket
+        const pathGroups = {
+            'blue': ['E', 'I', 'F'],
+            'cyan': ['H', 'D', 'G'],
+            'red': ['J', 'B', 'K'],
+            'green': ['C', 'A', 'L']
+        };
+
+        // Blue/Cyan groups and Red/Green groups (bracket sides)
+        const blueCyanGroups = ['D', 'E', 'F', 'G', 'H', 'I'];
+        const redGreenGroups = ['A', 'B', 'C', 'J', 'K', 'L'];
+
+        // State
+        let availableTeams = [...confirmedTeams];
+        let activeQualifierSpots = JSON.parse(JSON.stringify(qualifierSpots));
+        let groups = {};
+        let sortBy = 'name';
+        let poolSortBy = 'slot'; // 'slot' or 'elo'
+        let statDisplay = 'elo'; // 'elo', 'change', or 'talent'
+        let draggedTeam = null;
+        let draggedQualifier = null;
+
+        // Result placeholders for real-world draw results
+        let grous = {
+            a: [],
+            b: [],
+            c: [],
+            d: [],
+            e: [],
+            f: [],
+            g: [],
+            h: [],
+            i: [],
+            j: [],
+            k: [],
+            l: []
+        };
+
+        let qualies = {
+            // Format: "pot#_slot": "country_code"
+            // Example: "pot4_7": "it" means Italy won pot 4, slot 7
+        };
+
+        // Initialize groups
+        function initGroups() {
+            const groupNames = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'];
+            groupNames.forEach(name => {
+                groups[name] = {
+                    name: name,
+                    path: groupPaths[name],
+                    slots: [null, null, null, null]
+                };
+            });
+        }
+
+        // Calculate group ELO
+        function getGroupElo(group) {
+            return group.slots.reduce((sum, slot) => {
+                if (!slot) return sum;
+                if (slot.isQualifier) {
+                    // Calculate average ELO for qualifier
+                    const avgElo = Math.round(
+                        slot.qualifier.teams.reduce((s, t) => s + t.elo, 0) / slot.qualifier.teams.length
+                    );
+                    return sum + avgElo;
+                }
+                return sum + slot.elo;
+            }, 0);
+        }
+
+        // Check confederation rules
+        function canPlaceTeam(group, team, slotIndex) {
+            const existingConfs = {};
+            
+            group.slots.forEach((t, idx) => {
+                if (t && idx !== slotIndex) {
+                    existingConfs[t.confederation] = (existingConfs[t.confederation] || 0) + 1;
+                }
+            });
+
+            const confCount = existingConfs[team.confederation] || 0;
+            
+            if (team.confederation === 'UEFA') {
+                return confCount < 2;
+            }
+            return confCount < 1;
+        }
+
+        // Match simulation function
+        function simulateMatch(team1, team2, isKnockout = true) {
+            // ===== TUNING PARAMETERS =====
+            // FAVORITE_BIAS: Higher values make favorites win MORE than their odds suggest
+            // 1.0 = no bias (outcomes match odds exactly)
+            // 1.5 = favorites win 50% more often than odds suggest
+            // 2.0 = favorites win 2x more often than odds suggest
+            // Recommendation: 1.3-1.8 for realistic football simulation
+            const FAVORITE_BIAS = 1.5;
+            // ============================
+
+            // Hybrid rating system combining talent (squad quality) and ELO (recent performance)
+            // Talent base represents inherent squad quality, ELO represents recent form/results
+
+            // Convert talent_base (0-100 scale) to ELO-equivalent scale
+            // talent_base ranges ~42-88, we'll map this to contribute significantly to strength
+            const talentToElo = (talent) => 1200 + (talent * 10); // Maps 70 talent -> 1900 ELO equivalent
+
+            // Blend talent (80%) with ELO (18%) and recent form (2%)
+            // Elite squads should dominate - talent is the primary factor
+            const talentWeight = 0.80;
+            const eloWeight = 0.18;
+            const formWeight = 0.02;
+
+            const strength1 = (talentToElo(team1.talent_base) * talentWeight) +
+                             (team1.elo * eloWeight) +
+                             (team1.change * 10 * formWeight);
+
+            const strength2 = (talentToElo(team2.talent_base) * talentWeight) +
+                             (team2.elo * eloWeight) +
+                             (team2.change * 10 * formWeight);
+
+            // Calculate expected score using ELO formula (divisor 175 for balanced odds)
+            const strengthDiff = strength1 - strength2;
+            const expectedScore1 = 1 / (1 + Math.pow(10, -strengthDiff / 175));
+
+            // Calculate draw probability (higher baseline, decays slower with strength difference)
+            // Draws are common in football even with mismatched teams
+            const maxDrawProb = 0.28; // Peak draw probability for perfectly matched teams
+            const drawProbability = isKnockout ? 0 : maxDrawProb * Math.exp(-(strengthDiff * strengthDiff) / 50000);
+
+            // Normalize probabilities (THESE ARE SHOWN AS ODDS)
+            const team1WinProb = expectedScore1 * (1 - drawProbability);
+            const team2WinProb = (1 - expectedScore1) * (1 - drawProbability);
+
+            // Apply favorite bias to simulation (NOT to odds display)
+            // Identify the favorite and apply bias
+            let biasedTeam1WinProb = team1WinProb;
+            let biasedTeam2WinProb = team2WinProb;
+            let biasedDrawProb = drawProbability;
+
+            if (team1WinProb > team2WinProb) {
+                // Team 1 is favorite - boost their probability
+                biasedTeam1WinProb = team1WinProb * FAVORITE_BIAS;
+            } else if (team2WinProb > team1WinProb) {
+                // Team 2 is favorite - boost their probability
+                biasedTeam2WinProb = team2WinProb * FAVORITE_BIAS;
+            }
+
+            // Renormalize biased probabilities to sum to 1
+            const biasedTotal = biasedTeam1WinProb + biasedTeam2WinProb + biasedDrawProb;
+            biasedTeam1WinProb /= biasedTotal;
+            biasedTeam2WinProb /= biasedTotal;
+            biasedDrawProb /= biasedTotal;
+
+            // Determine outcome using BIASED probabilities
+            const randomFactor = Math.random();
+            let team1Wins, isDraw = false;
+
+            if (randomFactor < biasedTeam1WinProb) {
+                team1Wins = true;
+            } else if (randomFactor < biasedTeam1WinProb + biasedDrawProb) {
+                isDraw = true;
+                // In knockout, use slight advantage to stronger team to break tie
+                team1Wins = expectedScore1 > 0.5;
+            } else {
+                team1Wins = false;
+            }
+
+            // Generate realistic scoreline based on quality difference
+            let homeGoals, awayGoals;
+            const qualityDiff = Math.abs(strengthDiff);
+
+            if (isDraw) {
+                // Draw scoreline - most common are 0-0, 1-1, 2-2
+                const drawType = Math.random();
+                if (drawType < 0.35) {
+                    homeGoals = awayGoals = 0; // 0-0
+                } else if (drawType < 0.75) {
+                    homeGoals = awayGoals = 1; // 1-1
+                } else if (drawType < 0.92) {
+                    homeGoals = awayGoals = 2; // 2-2
+                } else {
+                    homeGoals = awayGoals = 3; // 3-3 (rare)
+                }
+            } else if (team1Wins) {
+                // Team 1 wins
+                if (qualityDiff > 300) {
+                    // Big mismatch
+                    homeGoals = 2 + Math.floor(Math.random() * 3); // 2-4 goals
+                    awayGoals = Math.floor(Math.random() * 2); // 0-1 goals
+                } else if (qualityDiff > 150) {
+                    // Moderate advantage
+                    homeGoals = 1 + Math.floor(Math.random() * 3); // 1-3 goals
+                    awayGoals = Math.floor(Math.random() * 2); // 0-1 goals
+                } else {
+                    // Close match
+                    homeGoals = 1 + Math.floor(Math.random() * 2); // 1-2 goals
+                    awayGoals = Math.floor(Math.random() * 2); // 0-1 goals
+                }
+                // Ensure team 1 actually wins
+                if (homeGoals <= awayGoals) homeGoals = awayGoals + 1;
+            } else {
+                // Team 2 wins
+                if (qualityDiff > 300) {
+                    // Upset!
+                    homeGoals = Math.floor(Math.random() * 2); // 0-1 goals
+                    awayGoals = 1 + Math.floor(Math.random() * 2); // 1-2 goals
+                } else if (qualityDiff > 150) {
+                    homeGoals = Math.floor(Math.random() * 2); // 0-1 goals
+                    awayGoals = 1 + Math.floor(Math.random() * 3); // 1-3 goals
+                } else {
+                    // Close match
+                    homeGoals = Math.floor(Math.random() * 2); // 0-1 goals
+                    awayGoals = 1 + Math.floor(Math.random() * 2); // 1-2 goals
+                }
+                // Ensure team 2 actually wins
+                if (awayGoals <= homeGoals) awayGoals = homeGoals + 1;
+            }
+
+            // Calculate odds for the actual outcome
+            let outcomeOdds;
+            if (isDraw) {
+                outcomeOdds = drawProbability > 0 ? (1 / drawProbability).toFixed(2) : 'N/A';
+            } else if (homeGoals > awayGoals) {
+                outcomeOdds = (1 / team1WinProb).toFixed(2);
+            } else {
+                outcomeOdds = (1 / team2WinProb).toFixed(2);
+            }
+
+            return {
+                homeTeam: team1,
+                awayTeam: team2,
+                homeGoals: homeGoals,
+                awayGoals: awayGoals,
+                isDraw: isDraw,
+                winner: homeGoals > awayGoals ? team1 : (homeGoals < awayGoals ? team2 : null),
+                outcomeOdds: outcomeOdds
+            };
+        }
+
+        // Simulate qualifications with match results
+        function simulateQualifications() {
+            // Restore all qualifiers to active pool for re-simulation
+            activeQualifierSpots = JSON.parse(JSON.stringify(qualifierSpots));
+
+            // Remove previously qualified teams from available pool
+            availableTeams = availableTeams.filter(team => !team.qualifierMatches);
+
+            // Remove previously qualified teams from groups and restore qualifier placeholders
+            Object.entries(groups).forEach(([groupName, group]) => {
+                group.slots.forEach((slot, index) => {
+                    if (slot && slot.qualifierMatches) {
+                        // This is a qualified team that was resolved - restore the qualifier placeholder
+                        const originalQualifier = qualifierSpots.find(q => q.id === slot.qualifierId);
+                        if (originalQualifier) {
+                            groups[groupName].slots[index] = {
+                                isQualifier: true,
+                                qualifier: originalQualifier
+                            };
+                            // Remove this qualifier from active pool since it's placed in a group
+                            activeQualifierSpots = activeQualifierSpots.filter(q => q.id !== originalQualifier.id);
+                        }
+                    }
+                });
+            });
+
+            // Find qualifiers placed in groups (including those we just restored)
+            const placedQualifiers = [];
+            Object.entries(groups).forEach(([groupName, group]) => {
+                group.slots.forEach((slot, index) => {
+                    if (slot && slot.isQualifier) {
+                        placedQualifiers.push({
+                            groupName,
+                            slotIndex: index,
+                            qualifier: slot.qualifier
+                        });
+                    }
+                });
+            });
+
+            // Simulate qualifiers in pool
+            activeQualifierSpots.forEach(spot => {
+                const matches = [];
+                let winner;
+
+                if (spot.teams.length === 4) {
+                    // 4-team playoff: semifinal 1v2 and 3v4, then final
+                    const semi1 = simulateMatch(spot.teams[0], spot.teams[1]);
+                    const semi2 = simulateMatch(spot.teams[2], spot.teams[3]);
+                    matches.push(semi1, semi2);
+
+                    const final = simulateMatch(semi1.winner, semi2.winner);
+                    matches.push(final);
+                    winner = final.winner;
+
+                } else if (spot.teams.length === 3) {
+                    // 3-team playoff: first 1v2, winner plays 3
+                    const semi = simulateMatch(spot.teams[0], spot.teams[1]);
+                    matches.push(semi);
+
+                    const final = simulateMatch(semi.winner, spot.teams[2]);
+                    matches.push(final);
+                    winner = final.winner;
+                }
+
+                // Create qualified team object with match history
+                const qualifiedTeam = {
+                    ...winner,
+                    pot: spot.pot,
+                    slot: spot.slot,
+                    qualifierMatches: matches,
+                    qualifierId: spot.id
+                };
+                availableTeams.push(qualifiedTeam);
+            });
+
+            // Simulate and resolve qualifiers placed in groups
+            placedQualifiers.forEach(({ groupName, slotIndex, qualifier }) => {
+                const matches = [];
+                let winner;
+
+                if (qualifier.teams.length === 4) {
+                    // 4-team playoff: semifinal 1v2 and 3v4, then final
+                    const semi1 = simulateMatch(qualifier.teams[0], qualifier.teams[1]);
+                    const semi2 = simulateMatch(qualifier.teams[2], qualifier.teams[3]);
+                    matches.push(semi1, semi2);
+
+                    const final = simulateMatch(semi1.winner, semi2.winner);
+                    matches.push(final);
+                    winner = final.winner;
+
+                } else if (qualifier.teams.length === 3) {
+                    // 3-team playoff: first 1v2, winner plays 3
+                    const semi = simulateMatch(qualifier.teams[0], qualifier.teams[1]);
+                    matches.push(semi);
+
+                    const final = simulateMatch(semi.winner, qualifier.teams[2]);
+                    matches.push(final);
+                    winner = final.winner;
+                }
+
+                // Create qualified team object with match history
+                const qualifiedTeam = {
+                    ...winner,
+                    pot: qualifier.pot,
+                    slot: qualifier.slot,
+                    qualifierMatches: matches,
+                    qualifierId: qualifier.id
+                };
+
+                // Replace the qualifier placeholder with the winning team
+                groups[groupName].slots[slotIndex] = qualifiedTeam;
+            });
+
+            activeQualifierSpots = [];
+            renderTeamPool();
+            renderGroups();
+            updateStats();
+        }
+
+        // Simulate group stage matches
+        function simulateGroups() {
+            // Check if all groups are filled
+            const allGroupsFilled = Object.values(groups).every(group =>
+                group.slots.every(slot => slot !== null)
+            );
+
+            if (!allGroupsFilled) {
+                alert('All groups must be filled before simulating matches!');
+                return;
+            }
+
+            // Check if there are unsimulated qualifiers in groups
+            const hasUnresolvedQualifiers = Object.values(groups).some(group =>
+                group.slots.some(slot => slot && slot.isQualifier)
+            );
+
+            // If qualifiers haven't been simulated, do that first
+            if (hasUnresolvedQualifiers) {
+                console.log('Simulating qualifications first...');
+                simulateQualifications();
+                // Re-render after qualification simulation
+                renderTeamPool();
+                renderGroups();
+            }
+
+            // Reset any existing group stats
+            Object.values(groups).forEach(group => {
+                group.slots.forEach(team => {
+                    team.groupStats = {
+                        played: 0,
+                        won: 0,
+                        drawn: 0,
+                        lost: 0,
+                        goalsFor: 0,
+                        goalsAgainst: 0,
+                        goalDifference: 0,
+                        points: 0,
+                        matches: []
+                    };
+                });
+            });
+
+            // Simulate matches for each group
+            Object.entries(groups).forEach(([groupName, group]) => {
+                const teams = group.slots;
+
+                // Round-robin: each team plays each other once (6 matches per group)
+                const matchups = [
+                    [0, 1], [2, 3], // Matchday 1
+                    [0, 2], [1, 3], // Matchday 2
+                    [0, 3], [1, 2]  // Matchday 3
+                ];
+
+                matchups.forEach(([idx1, idx2]) => {
+                    const team1 = teams[idx1];
+                    const team2 = teams[idx2];
+
+                    // Simulate match (group stage, so draws allowed)
+                    const match = simulateMatch(team1, team2, false);
+
+                    // Update team 1 stats
+                    team1.groupStats.played++;
+                    team1.groupStats.goalsFor += match.homeGoals;
+                    team1.groupStats.goalsAgainst += match.awayGoals;
+                    team1.groupStats.matches.push(match);
+
+                    if (match.homeGoals > match.awayGoals) {
+                        team1.groupStats.won++;
+                        team1.groupStats.points += 3;
+                    } else if (match.homeGoals === match.awayGoals) {
+                        team1.groupStats.drawn++;
+                        team1.groupStats.points += 1;
+                    } else {
+                        team1.groupStats.lost++;
+                    }
+
+                    // Update team 2 stats
+                    team2.groupStats.played++;
+                    team2.groupStats.goalsFor += match.awayGoals;
+                    team2.groupStats.goalsAgainst += match.homeGoals;
+                    team2.groupStats.matches.push(match);
+
+                    if (match.awayGoals > match.homeGoals) {
+                        team2.groupStats.won++;
+                        team2.groupStats.points += 3;
+                    } else if (match.awayGoals === match.homeGoals) {
+                        team2.groupStats.drawn++;
+                        team2.groupStats.points += 1;
+                    } else {
+                        team2.groupStats.lost++;
+                    }
+                });
+
+                // Calculate goal difference for all teams
+                teams.forEach(team => {
+                    team.groupStats.goalDifference = team.groupStats.goalsFor - team.groupStats.goalsAgainst;
+                });
+
+                // Sort teams by standings: points desc, then GD desc, then GF desc
+                group.slots.sort((a, b) => {
+                    if (b.groupStats.points !== a.groupStats.points) {
+                        return b.groupStats.points - a.groupStats.points;
+                    }
+                    if (b.groupStats.goalDifference !== a.groupStats.goalDifference) {
+                        return b.groupStats.goalDifference - a.groupStats.goalDifference;
+                    }
+                    return b.groupStats.goalsFor - a.groupStats.goalsFor;
+                });
+            });
+
+            // Re-render groups with updated stats
+            renderGroups();
+
+            // Populate knockout bracket
+            populateKnockoutBracket();
+
+            // Scroll to knockout section
+            setTimeout(() => {
+                document.querySelector('.knockout-section')?.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }, 300);
+        }
+
+        // Populate knockout bracket with qualified teams
+        function populateKnockoutBracket() {
+            // Clear any previous bracket data
+            clearKnockoutBracket();
+
+            // Check if groups have been simulated
+            const firstGroup = Object.values(groups)[0];
+            if (!firstGroup.slots[0]?.groupStats) {
+                console.log('Groups not simulated yet');
+                return;
+            }
+
+            // Extract group winners, runners-up, and third-place teams
+            const groupResults = {};
+            Object.entries(groups).forEach(([groupName, group]) => {
+                groupResults[groupName] = {
+                    first: group.slots[0],
+                    second: group.slots[1],
+                    third: group.slots[2],
+                    fourth: group.slots[3]
+                };
+            });
+
+            // Get all third-place teams and sort them
+            const thirdPlaceTeams = Object.entries(groupResults).map(([groupName, results]) => ({
+                team: results.third,
+                groupName: groupName
+            })).sort((a, b) => {
+                const statsA = a.team.groupStats;
+                const statsB = b.team.groupStats;
+
+                // Sort by points, then GD, then GF
+                if (statsB.points !== statsA.points) {
+                    return statsB.points - statsA.points;
+                }
+                if (statsB.goalDifference !== statsA.goalDifference) {
+                    return statsB.goalDifference - statsA.goalDifference;
+                }
+                return statsB.goalsFor - statsA.goalsFor;
+            });
+
+            // Best 8 third-place teams qualify
+            const qualifiedThirds = thirdPlaceTeams.slice(0, 8);
+            const thirdPlaceMap = {};
+            qualifiedThirds.forEach(({ team, groupName }) => {
+                thirdPlaceMap[groupName] = team;
+            });
+
+            // Update DOM with actual team names
+            document.querySelectorAll('.team-slot').forEach(slot => {
+                const originalText = slot.getAttribute('data-original');
+                if (!originalText) return;
+
+                const text = originalText.trim();
+
+                // Handle first place (e.g., "1E")
+                if (text.match(/^1[A-L]$/)) {
+                    const groupName = text.charAt(1);
+                    const team = groupResults[groupName]?.first;
+                    if (team) {
+                        slot.innerHTML = `<span class="source-label">${text}</span><span class="fi fi-${team.code}"></span> ${team.name}`;
+                        slot.classList.add('filled');
+                    }
+                }
+
+                // Handle second place (e.g., "2A")
+                else if (text.match(/^2[A-L]$/)) {
+                    const groupName = text.charAt(1);
+                    const team = groupResults[groupName]?.second;
+                    if (team) {
+                        slot.innerHTML = `<span class="source-label">${text}</span><span class="fi fi-${team.code}"></span> ${team.name}`;
+                        slot.classList.add('filled');
+                    }
+                }
+
+                // Handle third place (e.g., "3ABCDF")
+                else if (text.match(/^3[A-Z]+$/)) {
+                    const possibleGroups = text.substring(1).split('');
+                    // Find first qualified third from these groups
+                    for (const g of possibleGroups) {
+                        if (thirdPlaceMap[g]) {
+                            const team = thirdPlaceMap[g];
+                            const actualSource = `3${g}`;
+                            slot.innerHTML = `<span class="source-label">${actualSource}</span><span class="fi fi-${team.code}"></span> ${team.name}`;
+                            slot.classList.add('filled');
+                            break;
+                        }
+                    }
+                }
+            });
+
+            console.log('Knockout bracket populated');
+        }
+
+        // Show group match results dropdown
+        function showGroupMatchResults(team, pillElement) {
+            // Remove any existing dropdowns
+            const existingDropdown = document.querySelector('.match-results-dropdown');
+            if (existingDropdown) {
+                existingDropdown.remove();
+                return;
+            }
+
+            const dropdown = document.createElement('div');
+            dropdown.className = 'match-results-dropdown';
+
+            const matches = team.groupStats.matches;
+            const teamName = team.name;
+
+            let matchHTML = `<div class="match-results-header">Group Stage Results</div>`;
+
+            matches.forEach((match) => {
+                const isHome = match.homeTeam.name === teamName;
+                const opponent = isHome ? match.awayTeam : match.homeTeam;
+                const teamGoals = isHome ? match.homeGoals : match.awayGoals;
+                const oppGoals = isHome ? match.awayGoals : match.homeGoals;
+
+                // Determine result
+                let resultClass = '';
+                let resultText = '';
+                if (teamGoals > oppGoals) {
+                    resultClass = 'win';
+                    resultText = 'W';
+                } else if (teamGoals === oppGoals) {
+                    resultClass = 'draw';
+                    resultText = 'D';
+                } else {
+                    resultClass = 'loss';
+                    resultText = 'L';
+                }
+
+                const oppCode = opponent.name.substring(0, 3).toUpperCase();
+                const homeLabel = isHome ? '<span class="qualified-code">HOME</span>' : 'AWAY';
+
+                matchHTML += `
+                    <div class="match-result">
+                        <span style="color: ${resultClass === 'win' ? '#4ade80' : resultClass === 'draw' ? '#fbbf24' : '#f87171'}; font-weight: bold;">${resultText}</span>
+                        vs ${oppCode} (${teamGoals}-${oppGoals}, ${homeLabel}, odds: ${match.outcomeOdds})
+                    </div>
+                `;
+            });
+
+            // Add summary
+            matchHTML += `
+                <div class="match-result final">
+                    <strong>Record:</strong> ${team.groupStats.won}W-${team.groupStats.drawn}D-${team.groupStats.lost}L<br>
+                    <strong>Points:</strong> ${team.groupStats.points}<br>
+                    <strong>GD:</strong> ${team.groupStats.goalDifference > 0 ? '+' : ''}${team.groupStats.goalDifference}
+                </div>
+            `;
+
+            dropdown.innerHTML = matchHTML;
+
+            // Append to body and position
+            document.body.appendChild(dropdown);
+            const rect = pillElement.getBoundingClientRect();
+            dropdown.style.position = 'absolute';
+            dropdown.style.left = `${rect.left + window.scrollX}px`;
+            dropdown.style.top = `${rect.bottom + window.scrollY + 4}px`;
+
+            // Close on outside click
+            setTimeout(() => {
+                document.addEventListener('click', function closeDropdown(e) {
+                    if (!dropdown.contains(e.target) && e.target !== pillElement) {
+                        dropdown.remove();
+                        document.removeEventListener('click', closeDropdown);
+                    }
+                });
+            }, 0);
+        }
+
+        // Knockout stage tracking
+        let knockoutStage = 'r32'; // r32, r16, qf, sf, finals, complete
+        let knockoutMatches = {}; // Store match results
+
+        // Simulate knockout stage
+        function simulateKnockoutStage() {
+            const btn = document.getElementById('simulateKnockoutBtn');
+
+            if (knockoutStage === 'r32') {
+                // Simulate Round of 32
+                simulateRound32();
+                knockoutStage = 'r16';
+                btn.textContent = '⚽ Simulate Round of 16';
+            } else if (knockoutStage === 'r16') {
+                // Simulate Round of 16
+                simulateRound16();
+                knockoutStage = 'qf';
+                btn.textContent = '⚽ Simulate Quarter-finals';
+            } else if (knockoutStage === 'qf') {
+                // Simulate Quarter-finals
+                simulateQuarterFinals();
+                knockoutStage = 'sf';
+                btn.textContent = '⚽ Simulate Semi-finals';
+            } else if (knockoutStage === 'sf') {
+                // Simulate Semi-finals
+                simulateSemiFinals();
+                knockoutStage = 'finals';
+                btn.textContent = '⚽ Simulate Finals';
+            } else if (knockoutStage === 'finals') {
+                // Simulate Finals
+                simulateFinals();
+                knockoutStage = 'complete';
+                btn.disabled = true;
+                btn.textContent = '✓ Tournament Complete';
+            }
+        }
+
+        // Get team from slot
+        function getTeamFromSlot(slotElement) {
+            const original = slotElement.getAttribute('data-original');
+            if (!original) return null;
+
+            // Check if slot has been filled (has flag)
+            const flagSpan = slotElement.querySelector('.fi');
+            if (!flagSpan) return null;
+
+            // Extract team code from flag class
+            const code = flagSpan.className.match(/fi-([a-z-]+)/)?.[1];
+            if (!code) return null;
+
+            // Find the team object in groups
+            const allSlots = Object.values(groups).flatMap(g => g.slots).filter(Boolean);
+            const team = allSlots.find(t => t.code === code);
+
+            if (!team) {
+                console.error(`Could not find team with code: ${code}`);
+                return null;
+            }
+
+            return team;
+        }
+
+        // Update team slot with result
+        function updateTeamSlot(slotElement, team, score, isWinner) {
+            const originalText = slotElement.getAttribute('data-original');
+            let innerHTML = '';
+
+            // Add source label for R32 slots
+            if (originalText && originalText.match(/^[123][A-Z]+$/)) {
+                // For third place slots, show actual group (e.g., "3E" instead of "3ABCDF")
+                if (originalText.match(/^3[A-Z]+$/)) {
+                    // Try to find which group this team is from
+                    let actualGroup = '';
+                    Object.entries(groups).forEach(([groupName, group]) => {
+                        if (group.slots.some(slot => slot && slot.code === team.code)) {
+                            actualGroup = groupName;
+                        }
+                    });
+                    const sourceLabel = actualGroup ? `3${actualGroup.toUpperCase()}` : originalText;
+                    innerHTML = `<span class="source-label">${sourceLabel}</span>`;
+                } else {
+                    innerHTML = `<span class="source-label">${originalText}</span>`;
+                }
+            }
+
+            innerHTML += `<span class="fi fi-${team.code}"></span> ${team.name} <span class="score">${score}</span>`;
+            slotElement.innerHTML = innerHTML;
+            slotElement.classList.add('filled');
+            if (isWinner) {
+                slotElement.classList.add('winner');
+            }
+        }
+
+        // Advance winner to next round
+        function advanceWinner(winnerTeam, targetSlotOriginal) {
+            // Find the slot with matching data-original
+            const targetSlots = document.querySelectorAll(`.team-slot[data-original="${targetSlotOriginal}"]`);
+            targetSlots.forEach(slot => {
+                slot.innerHTML = `<span class="fi fi-${winnerTeam.code}"></span> ${winnerTeam.name}`;
+                slot.classList.add('filled');
+            });
+        }
+
+        // Simulate a single knockout match
+        function simulateKnockoutMatch(team1, team2) {
+            const match = simulateMatch(team1, team2, true); // true = knockout (no draws)
+            return match;
+        }
+
+        // Simulate Round of 32
+        function simulateRound32() {
+            const matches = [
+                { home: '1E', away: '3ABCDF', winner: 'W74' },
+                { home: '1I', away: '3CDFGH', winner: 'W77' },
+                { home: '2A', away: '2B', winner: 'W73' },
+                { home: '1F', away: '2C', winner: 'W75' },
+                { home: '2K', away: '2L', winner: 'W83' },
+                { home: '1H', away: '2J', winner: 'W84' },
+                { home: '1D', away: '3BEFIJ', winner: 'W81' },
+                { home: '1G', away: '3AEHIJ', winner: 'W82' },
+                { home: '1C', away: '2F', winner: 'W76' },
+                { home: '2E', away: '2I', winner: 'W78' },
+                { home: '1A', away: '3CEFHI', winner: 'W79' },
+                { home: '1L', away: '3EHIJK', winner: 'W80' },
+                { home: '1J', away: '2H', winner: 'W86' },
+                { home: '2D', away: '2G', winner: 'W88' },
+                { home: '1B', away: '3EFGIJ', winner: 'W85' },
+                { home: '1K', away: '3DEIJL', winner: 'W87' }
+            ];
+
+            matches.forEach(({ home, away, winner }) => {
+                const homeSlots = document.querySelectorAll(`.team-slot[data-original="${home}"]`);
+                const awaySlots = document.querySelectorAll(`.team-slot[data-original="${away}"]`);
+
+                if (homeSlots.length === 0 || awaySlots.length === 0) return;
+
+                const homeTeam = getTeamFromSlot(homeSlots[0]);
+                const awayTeam = getTeamFromSlot(awaySlots[0]);
+
+                if (!homeTeam || !awayTeam) return;
+
+                const match = simulateKnockoutMatch(homeTeam, awayTeam);
+
+                // Update slots with scores
+                homeSlots.forEach(slot => updateTeamSlot(slot, homeTeam, match.homeGoals, match.homeGoals > match.awayGoals));
+                awaySlots.forEach(slot => updateTeamSlot(slot, awayTeam, match.awayGoals, match.awayGoals > match.homeGoals));
+
+                // Advance winner
+                advanceWinner(match.winner, winner);
+            });
+        }
+
+        // Simulate Round of 16
+        function simulateRound16() {
+            const matches = [
+                { home: 'W74', away: 'W77', winner: 'W89' },
+                { home: 'W73', away: 'W75', winner: 'W90' },
+                { home: 'W83', away: 'W84', winner: 'W93' },
+                { home: 'W81', away: 'W82', winner: 'W94' },
+                { home: 'W76', away: 'W78', winner: 'W91' },
+                { home: 'W79', away: 'W80', winner: 'W92' },
+                { home: 'W86', away: 'W88', winner: 'W95' },
+                { home: 'W85', away: 'W87', winner: 'W96' }
+            ];
+
+            simulateRoundGeneric(matches);
+        }
+
+        // Simulate Quarter-finals
+        function simulateQuarterFinals() {
+            const matches = [
+                { home: 'W89', away: 'W90', winner: 'W97' },
+                { home: 'W93', away: 'W94', winner: 'W98' },
+                { home: 'W91', away: 'W92', winner: 'W99' },
+                { home: 'W95', away: 'W96', winner: 'W100' }
+            ];
+
+            simulateRoundGeneric(matches);
+        }
+
+        // Simulate Semi-finals
+        function simulateSemiFinals() {
+            const matches = [
+                { home: 'W97', away: 'W98', winner: 'W101', loser: 'L101' },
+                { home: 'W99', away: 'W100', winner: 'W102', loser: 'L102' }
+            ];
+
+            matches.forEach(({ home, away, winner, loser }) => {
+                const homeSlots = document.querySelectorAll(`.team-slot[data-original="${home}"]`);
+                const awaySlots = document.querySelectorAll(`.team-slot[data-original="${away}"]`);
+
+                if (homeSlots.length === 0 || awaySlots.length === 0) return;
+
+                const homeTeam = getTeamFromSlot(homeSlots[0]);
+                const awayTeam = getTeamFromSlot(awaySlots[0]);
+
+                if (!homeTeam || !awayTeam) return;
+
+                const match = simulateKnockoutMatch(homeTeam, awayTeam);
+
+                // Update slots with scores
+                homeSlots.forEach(slot => updateTeamSlot(slot, homeTeam, match.homeGoals, match.homeGoals > match.awayGoals));
+                awaySlots.forEach(slot => updateTeamSlot(slot, awayTeam, match.awayGoals, match.awayGoals > match.homeGoals));
+
+                // Advance winner and loser
+                advanceWinner(match.winner, winner);
+                const loserTeam = match.homeGoals > match.awayGoals ? awayTeam : homeTeam;
+                advanceWinner(loserTeam, loser);
+            });
+        }
+
+        // Simulate Finals
+        function simulateFinals() {
+            // Bronze final
+            const bronzeHomeSlots = document.querySelectorAll(`.team-slot[data-original="L101"]`);
+            const bronzeAwaySlots = document.querySelectorAll(`.team-slot[data-original="L102"]`);
+
+            if (bronzeHomeSlots.length > 0 && bronzeAwaySlots.length > 0) {
+                const bronzeHome = getTeamFromSlot(bronzeHomeSlots[0]);
+                const bronzeAway = getTeamFromSlot(bronzeAwaySlots[0]);
+
+                if (bronzeHome && bronzeAway) {
+                    const bronzeMatch = simulateKnockoutMatch(bronzeHome, bronzeAway);
+                    bronzeHomeSlots.forEach(slot => updateTeamSlot(slot, bronzeHome, bronzeMatch.homeGoals, bronzeMatch.homeGoals > bronzeMatch.awayGoals));
+                    bronzeAwaySlots.forEach(slot => updateTeamSlot(slot, bronzeAway, bronzeMatch.awayGoals, bronzeMatch.awayGoals > bronzeMatch.homeGoals));
+                }
+            }
+
+            // Final
+            const finalHomeSlots = document.querySelectorAll(`.team-slot[data-original="W101"]`);
+            const finalAwaySlots = document.querySelectorAll(`.team-slot[data-original="W102"]`);
+
+            if (finalHomeSlots.length > 0 && finalAwaySlots.length > 0) {
+                const finalHome = getTeamFromSlot(finalHomeSlots[0]);
+                const finalAway = getTeamFromSlot(finalAwaySlots[0]);
+
+                if (finalHome && finalAway) {
+                    const finalMatch = simulateKnockoutMatch(finalHome, finalAway);
+                    finalHomeSlots.forEach(slot => updateTeamSlot(slot, finalHome, finalMatch.homeGoals, finalMatch.homeGoals > finalMatch.awayGoals));
+                    finalAwaySlots.forEach(slot => updateTeamSlot(slot, finalAway, finalMatch.awayGoals, finalMatch.awayGoals > finalMatch.homeGoals));
+
+                    console.log(`🏆 WORLD CUP WINNER: ${finalMatch.winner.name}!`);
+                }
+            }
+        }
+
+        // Generic round simulation
+        function simulateRoundGeneric(matches) {
+            matches.forEach(({ home, away, winner }) => {
+                const homeSlots = document.querySelectorAll(`.team-slot[data-original="${home}"]`);
+                const awaySlots = document.querySelectorAll(`.team-slot[data-original="${away}"]`);
+
+                if (homeSlots.length === 0 || awaySlots.length === 0) return;
+
+                const homeTeam = getTeamFromSlot(homeSlots[0]);
+                const awayTeam = getTeamFromSlot(awaySlots[0]);
+
+                if (!homeTeam || !awayTeam) return;
+
+                const match = simulateKnockoutMatch(homeTeam, awayTeam);
+
+                // Update slots with scores
+                homeSlots.forEach(slot => updateTeamSlot(slot, homeTeam, match.homeGoals, match.homeGoals > match.awayGoals));
+                awaySlots.forEach(slot => updateTeamSlot(slot, awayTeam, match.awayGoals, match.awayGoals > match.homeGoals));
+
+                // Advance winner
+                advanceWinner(match.winner, winner);
+            });
+        }
+
+        // Console test function for match odds and simulation
+        window.testMatch = function(homeName, awayName, isKnockout = false) {
+            // Helper function to find team by name (supports partial matching)
+            const findTeam = (name) => {
+                const normalizedName = name.toLowerCase().trim();
+
+                // Try exact match first in confirmed teams
+                let team = confirmedTeams.find(t => t.name.toLowerCase() === normalizedName);
+                if (team) return team;
+
+                // Try exact match in qualifier spots
+                for (const spot of qualifierSpots) {
+                    team = spot.teams.find(t => t.name.toLowerCase() === normalizedName);
+                    if (team) return team;
+                }
+
+                // Try partial match (contains) in confirmed teams
+                team = confirmedTeams.find(t => t.name.toLowerCase().includes(normalizedName));
+                if (team) return team;
+
+                // Try partial match in qualifier spots
+                for (const spot of qualifierSpots) {
+                    team = spot.teams.find(t => t.name.toLowerCase().includes(normalizedName));
+                    if (team) return team;
+                }
+
+                return null;
+            };
+
+            const home = findTeam(homeName);
+            const away = findTeam(awayName);
+
+            if (!home) {
+                console.error(`Team not found: ${homeName}`);
+                return null;
+            }
+            if (!away) {
+                console.error(`Team not found: ${awayName}`);
+                return null;
+            }
+
+            // Calculate strength values (same as simulateMatch)
+            const talentToElo = (talent) => 1200 + (talent * 10);
+            const talentWeight = 0.80;
+            const eloWeight = 0.18;
+            const formWeight = 0.02;
+
+            const strength1 = (talentToElo(home.talent_base) * talentWeight) +
+                             (home.elo * eloWeight) +
+                             (home.change * 10 * formWeight);
+
+            const strength2 = (talentToElo(away.talent_base) * talentWeight) +
+                             (away.elo * eloWeight) +
+                             (away.change * 10 * formWeight);
+
+            const strengthDiff = strength1 - strength2;
+            const expectedScore1 = 1 / (1 + Math.pow(10, -strengthDiff / 175));
+
+            // Calculate draw probability
+            const maxDrawProb = 0.28;
+            const drawProbability = isKnockout ? 0 : maxDrawProb * Math.exp(-(strengthDiff * strengthDiff) / 50000);
+
+            // Calculate probabilities
+            const homeWinProb = expectedScore1 * (1 - drawProbability);
+            const awayWinProb = (1 - expectedScore1) * (1 - drawProbability);
+
+            // Convert to decimal odds
+            const homeOdds = (1 / homeWinProb).toFixed(2);
+            const drawOdds = drawProbability > 0 ? (1 / drawProbability).toFixed(2) : 'N/A';
+            const awayOdds = (1 / awayWinProb).toFixed(2);
+
+            // Simulate the match
+            const match = simulateMatch(home, away, isKnockout);
+
+            // Print results
+            console.log('='.repeat(60));
+            console.log(`${home.name} vs ${away.name}`);
+            console.log('='.repeat(60));
+            console.log(`${home.name}:`);
+            console.log(`  ELO: ${home.elo} | Form: ${home.change > 0 ? '+' : ''}${home.change} | Talent: ${home.talent_base}`);
+            console.log(`  Strength: ${strength1.toFixed(1)}`);
+            console.log(`${away.name}:`);
+            console.log(`  ELO: ${away.elo} | Form: ${away.change > 0 ? '+' : ''}${away.change} | Talent: ${away.talent_base}`);
+            console.log(`  Strength: ${strength2.toFixed(1)}`);
+            console.log('-'.repeat(60));
+            console.log(`Home Odds: ${homeOdds} (${(homeWinProb * 100).toFixed(1)}%)`);
+            console.log(`Draw Odds: ${drawOdds}${drawProbability > 0 ? ` (${(drawProbability * 100).toFixed(1)}%)` : ''}`);
+            console.log(`Away Odds: ${awayOdds} (${(awayWinProb * 100).toFixed(1)}%)`);
+            console.log('-'.repeat(60));
+            console.log(`Score: ${home.name} ${match.homeGoals} - ${match.awayGoals} ${away.name}`);
+            if (match.isDraw) {
+                console.log(`Result: DRAW`);
+            } else {
+                console.log(`Winner: ${match.winner.name}`);
+            }
+            console.log('='.repeat(60));
+
+            return match;
+        };
+
+        // Get validation messages
+        function getValidationMessages() {
+            const messages = [];
+            
+            // Check if qualifications complete
+            if (activeQualifierSpots.length > 0) {
+                messages.push({
+                    type: 'warning',
+                    text: `${activeQualifierSpots.length} qualifier spot(s) undecided`
+                });
+            }
+
+            // Get paths for the 4 constrained teams
+            const getTeamPath = (teamName) => {
+                const group = Object.values(groups).find(g => 
+                    g.slots.some(t => t && t.name === teamName));
+                return group ? group.path : null;
+            };
+
+            const spainPath = getTeamPath('Spain');
+            const argentinaPath = getTeamPath('Argentina');
+            const francePath = getTeamPath('France');
+            const englandPath = getTeamPath('England');
+
+            // Check Spain/Argentina on same bracket side
+            if (spainPath && argentinaPath) {
+                const spainSide = (spainPath === 'blue' || spainPath === 'cyan') ? 'left' : 'right';
+                const argentinaSide = (argentinaPath === 'blue' || argentinaPath === 'cyan') ? 'left' : 'right';
+                
+                if (spainSide === argentinaSide) {
+                    messages.push({
+                        type: 'error',
+                        text: `ESP/ARG same bracket side`
+                    });
+                }
+            }
+
+            // Check France/England should be on remaining paths (not same as Spain/Argentina)
+            if (francePath && spainPath && argentinaPath) {
+                if (francePath === spainPath || francePath === argentinaPath) {
+                    messages.push({
+                        type: 'error',
+                        text: `FRA same path as ESP or ARG`
+                    });
+                }
+            }
+
+            if (englandPath && spainPath && argentinaPath) {
+                if (englandPath === spainPath || englandPath === argentinaPath) {
+                    messages.push({
+                        type: 'error',
+                        text: `ENG same path as ESP or ARG`
+                    });
+                }
+            }
+
+            // Check France/England on same path
+            if (francePath && englandPath && francePath === englandPath) {
+                messages.push({
+                    type: 'error',
+                    text: `FRA/ENG same path`
+                });
+            }
+
+            // Check confederation violations
+            Object.values(groups).forEach(group => {
+                const confCount = {};
+                group.slots.forEach(team => {
+                    if (team) {
+                        confCount[team.confederation] = (confCount[team.confederation] || 0) + 1;
+                    }
+                });
+                
+                Object.entries(confCount).forEach(([conf, count]) => {
+                    if (conf === 'UEFA' && count > 2) {
+                        messages.push({
+                            type: 'error',
+                            text: `Group ${group.name}: >2 UEFA`
+                        });
+                    } else if (conf !== 'UEFA' && count > 1) {
+                        messages.push({
+                            type: 'error',
+                            text: `Group ${group.name}: 2× ${conf}`
+                        });
+                    }
+                });
+            });
+
+            if (messages.filter(m => m.type === 'error').length === 0) {
+                const drawnCount = Object.values(groups).reduce((sum, g) => 
+                    sum + g.slots.filter(t => t).length, 0);
+                if (drawnCount === 48) {
+                    messages.unshift({ type: 'success', text: '✓ Draw complete!' });
+                } else if (messages.length === 0 || messages.every(m => m.type === 'warning')) {
+                    messages.unshift({ type: 'success', text: '✓ No violations' });
+                }
+            }
+
+            return messages;
+        }
+
+        // Render team pool
+        function renderTeamPool() {
+            const container = document.getElementById('teamPool');
+            container.innerHTML = '';
+
+            [1, 2, 3, 4].forEach(pot => {
+                let potTeams = availableTeams.filter(t => t.pot === pot);
+                let potQualifiers = activeQualifierSpots.filter(q => q.pot === pot);
+
+                // Create combined list of items with type flag
+                let allItems = [];
+                
+                potTeams.forEach(t => allItems.push({ type: 'team', data: t, slot: t.slot, elo: t.elo }));
+                potQualifiers.forEach(q => {
+                    const avgElo = Math.round(q.teams.reduce((s, t) => s + t.elo, 0) / q.teams.length);
+                    allItems.push({ type: 'qualifier', data: q, slot: q.slot, elo: avgElo });
+                });
+
+                // Sort based on poolSortBy
+                if (poolSortBy === 'elo') {
+                    allItems.sort((a, b) => b.elo - a.elo);
+                } else {
+                    allItems.sort((a, b) => a.slot - b.slot);
+                }
+
+                const column = document.createElement('div');
+                column.className = 'pot-column';
+                
+                const totalCount = allItems.length;
+                
+                column.innerHTML = `
+                    <div class="pot-header">
+                        <div class="pot-badge pot-${pot}">Pot ${pot}</div>
+                        <span class="pot-count">${totalCount} team${totalCount !== 1 ? 's' : ''}</span>
+                    </div>
+                    <div class="pot-teams" id="pot${pot}Container"></div>
+                `;
+                container.appendChild(column);
+
+                const teamsContainer = column.querySelector(`#pot${pot}Container`);
+                
+                allItems.forEach(item => {
+                    if (item.type === 'team') {
+                        const pill = createTeamPill(item.data);
+                        teamsContainer.appendChild(pill);
+                    } else {
+                        const pill = createQualifierPill(item.data);
+                        teamsContainer.appendChild(pill);
+                    }
+                });
+            });
+        }
+
+        // Show match results dropdown
+        function showMatchResults(team, pillElement) {
+            // Remove any existing dropdowns
+            const existingDropdown = document.querySelector('.match-results-dropdown');
+            if (existingDropdown) {
+                existingDropdown.remove();
+                return; // Toggle off if clicking the same team
+            }
+
+            const dropdown = document.createElement('div');
+            dropdown.className = 'match-results-dropdown';
+
+            const matches = team.qualifierMatches;
+            const isFourTeam = matches.length === 3;
+            const qualifiedTeamName = team.name;
+
+            let matchHTML = `<div class="match-results-header">Qualification Path</div>`;
+
+            matches.forEach((match, index) => {
+                const isFinal = (isFourTeam && index === 2) || (!isFourTeam && index === 1);
+
+                // Get 3-letter country codes
+                const homeCode = match.homeTeam.name.substring(0, 3).toUpperCase();
+                const awayCode = match.awayTeam.name.substring(0, 3).toUpperCase();
+
+                // Check if each team is the qualified team and apply purple color
+                const homeIsQualified = match.homeTeam.name === qualifiedTeamName;
+                const awayIsQualified = match.awayTeam.name === qualifiedTeamName;
+
+                // Bold the winner
+                const homeWins = match.homeGoals > match.awayGoals;
+                let homeDisplay = homeIsQualified ? `<span class="qualified-code">${homeCode}</span>` : homeCode;
+                let awayDisplay = awayIsQualified ? `<span class="qualified-code">${awayCode}</span>` : awayCode;
+
+                if (homeWins) {
+                    homeDisplay = `<strong>${homeDisplay}</strong>`;
+                } else {
+                    awayDisplay = `<strong>${awayDisplay}</strong>`;
+                }
+
+                matchHTML += `
+                    <div class="match-result ${isFinal ? 'final' : ''}">
+                        ${homeDisplay} vs ${awayDisplay} (${match.homeGoals}-${match.awayGoals}, odds: ${match.outcomeOdds})
+                    </div>
+                `;
+            });
+
+            dropdown.innerHTML = matchHTML;
+
+            // Append to body and position using absolute positioning
+            document.body.appendChild(dropdown);
+
+            // Calculate absolute position based on pill's location including scroll offset
+            const rect = pillElement.getBoundingClientRect();
+            dropdown.style.position = 'absolute';
+            dropdown.style.left = `${rect.left + window.scrollX}px`;
+            dropdown.style.top = `${rect.bottom + window.scrollY + 4}px`;
+
+            // Store reference to pill for later cleanup
+            dropdown.dataset.pillElement = pillElement.dataset.teamName;
+
+            // Close dropdown when clicking outside
+            setTimeout(() => {
+                document.addEventListener('click', function closeDropdown(e) {
+                    if (!dropdown.contains(e.target) && e.target !== pillElement) {
+                        dropdown.remove();
+                        document.removeEventListener('click', closeDropdown);
+                    }
+                });
+            }, 0);
+        }
+
+        // Create team pill element
+        function createTeamPill(team) {
+            const pill = document.createElement('div');
+            const isQualified = team.qualifierMatches && team.qualifierMatches.length > 0;
+
+            pill.className = `team-pill pot-${team.pot}`;
+            if (isQualified) {
+                pill.classList.add('qualified');
+            }
+            pill.draggable = true;
+            pill.dataset.teamName = team.name;
+
+            pill.innerHTML = `
+                <span class="slot-num">${team.slot}</span>
+                <span class="fi fi-${team.code}"></span>
+                <div class="team-info">
+                    <span class="team-name">${team.name}</span>
+                    <span class="team-elo">(${getStatDisplay(team)})</span>
+                </div>
+                <span class="team-confederation">${team.confederation}</span>
+                ${team.preassigned ? `<span class="preassigned-badge">${team.preassigned}</span>` : ''}
+                ${isQualified ? `<span class="qualified-indicator">✓ QUALIFIED</span>` : ''}
+            `;
+
+            // Add click handler for qualified teams to show match results
+            if (isQualified) {
+                pill.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    showMatchResults(team, pill);
+                });
+            }
+
+            pill.addEventListener('dragstart', (e) => {
+                draggedTeam = team;
+                draggedQualifier = null;
+                pill.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+            });
+
+            pill.addEventListener('dragend', () => {
+                pill.classList.remove('dragging');
+                draggedTeam = null;
+            });
+
+            return pill;
+        }
+
+        // Create qualifier pill element
+        function createQualifierPill(qualifier) {
+            const pill = document.createElement('div');
+            pill.className = `team-pill pot-${qualifier.pot} qualifier`;
+            pill.draggable = true;
+            pill.dataset.qualifierId = qualifier.id;
+
+            const sortedTeams = [...qualifier.teams].sort((a, b) => b.elo - a.elo);
+
+            // Calculate average stat based on current display mode
+            let avgStat;
+            if (statDisplay === 'change') {
+                const avgChange = Math.round(sortedTeams.reduce((sum, t) => sum + t.change, 0) / sortedTeams.length);
+                avgStat = avgChange > 0 ? `+${avgChange}` : `${avgChange}`;
+            } else if (statDisplay === 'talent') {
+                avgStat = Math.round(sortedTeams.reduce((sum, t) => sum + t.talent_base, 0) / sortedTeams.length);
+            } else {
+                avgStat = Math.round(sortedTeams.reduce((sum, t) => sum + t.elo, 0) / sortedTeams.length);
+            }
+
+            pill.innerHTML = `
+                <span class="slot-num">${qualifier.slot}</span>
+                <div class="qualifier-flags">
+                    ${sortedTeams.map(t => `<span class="fi fi-${t.code}"></span>`).join('')}
+                </div>
+                <div class="team-info">
+                    <span class="qualifier-teams">${sortedTeams.map(t => t.name.substring(0, 3).toUpperCase()).join('/')}</span>
+                    <span class="team-elo">(~${avgStat})</span>
+                </div>
+                <span class="qualifier-badge">TBD</span>
+            `;
+
+            // Drag event handlers
+            pill.addEventListener('dragstart', (e) => {
+                draggedQualifier = qualifier;
+                draggedTeam = null;
+                pill.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+            });
+
+            pill.addEventListener('dragend', () => {
+                pill.classList.remove('dragging');
+                draggedQualifier = null;
+            });
+
+            return pill;
+        }
+
+        // Render groups
+        function renderGroups() {
+            const container = document.getElementById('groupsContainer');
+            container.innerHTML = '';
+
+            let groupsArray = Object.values(groups);
+            
+            if (sortBy === 'elo') {
+                groupsArray.sort((a, b) => getGroupElo(b) - getGroupElo(a));
+            } else {
+                groupsArray.sort((a, b) => a.name.localeCompare(b.name));
+            }
+
+            groupsArray.forEach(group => {
+                const card = document.createElement('div');
+                card.className = `group-card path-${group.path}`;
+                
+                const elo = getGroupElo(group);
+                const pathName = group.path.charAt(0).toUpperCase() + group.path.slice(1);
+
+                card.innerHTML = `
+                    <div class="group-header">
+                        <span class="group-name">Group ${group.name}</span>
+                        <span class="path-badge ${group.path}">${pathName}</span>
+                    </div>
+                    <div class="group-header" style="padding: 6px 15px; background: none; border-bottom: 1px solid var(--border-color);">
+                        <span style="font-size: 0.7rem; color: var(--text-secondary);">Total ELO</span>
+                        <span class="group-elo">${elo || '—'}</span>
+                    </div>
+                    <div class="group-slots" id="group${group.name}Slots"></div>
+                `;
+
+                const slotsContainer = card.querySelector(`#group${group.name}Slots`);
+                
+                for (let i = 0; i < 4; i++) {
+                    const slot = document.createElement('div');
+                    const slotContent = group.slots[i];
+                    const potNum = i + 1;
+
+                    slot.className = 'group-slot';
+                    slot.dataset.groupName = group.name;
+                    slot.dataset.slotIndex = i;
+
+                    if (slotContent) {
+                        // Check if this is a qualifier placeholder
+                        if (slotContent.isQualifier) {
+                            const qualifier = slotContent.qualifier;
+                            const sortedTeams = [...qualifier.teams].sort((a, b) => b.elo - a.elo);
+
+                            // Calculate average stat based on current display mode
+                            let avgStat;
+                            if (statDisplay === 'change') {
+                                const avgChange = Math.round(sortedTeams.reduce((sum, t) => sum + t.change, 0) / sortedTeams.length);
+                                avgStat = avgChange > 0 ? `+${avgChange}` : `${avgChange}`;
+                            } else if (statDisplay === 'talent') {
+                                avgStat = Math.round(sortedTeams.reduce((sum, t) => sum + t.talent_base, 0) / sortedTeams.length);
+                            } else {
+                                avgStat = Math.round(sortedTeams.reduce((sum, t) => sum + t.elo, 0) / sortedTeams.length);
+                            }
+
+                            slot.innerHTML = `
+                                <span class="slot-label">${group.name}${potNum}</span>
+                                <div class="slot-team qualifier-slot">
+                                    <div class="qualifier-flags" style="display: flex; gap: 2px;">
+                                        ${sortedTeams.map(t => `<span class="fi fi-${t.code}" style="font-size: 1rem;"></span>`).join('')}
+                                    </div>
+                                    <span class="slot-team-name" style="font-size: 0.75rem;">${sortedTeams.map(t => t.name.substring(0, 3).toUpperCase()).join('/')}</span>
+                                    <span class="slot-team-elo">(~${avgStat})</span>
+                                    <span class="qualifier-badge" style="background: var(--accent-gold); color: var(--bg-card); padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: bold;">TBD</span>
+                                </div>
+                                <button class="remove-btn" onclick="removeTeam('${group.name}', ${i})">✕</button>
+                            `;
+                        } else {
+                            // Regular team
+                            const team = slotContent;
+                            const hasStats = team.groupStats && team.groupStats.played > 0;
+                            const statsHTML = hasStats ? `
+                                <span class="slot-team-stats" style="margin-left: auto; font-size: 0.75rem; color: var(--text-secondary);">
+                                    ${team.groupStats.points}pts | GD: ${team.groupStats.goalDifference > 0 ? '+' : ''}${team.groupStats.goalDifference}
+                                </span>
+                            ` : '';
+
+                            slot.innerHTML = `
+                                <span class="slot-label">${group.name}${potNum}</span>
+                                <div class="slot-team" style="${hasStats ? 'cursor: pointer;' : ''}">
+                                    <span class="fi fi-${team.code}"></span>
+                                    <span class="slot-team-name">${team.name}</span>
+                                    <span class="slot-team-elo">(${getStatDisplay(team)})</span>
+                                    <span class="slot-team-conf">${team.confederation}</span>
+                                    ${statsHTML}
+                                </div>
+                                ${!hasStats ? `<button class="remove-btn" onclick="removeTeam('${group.name}', ${i})">✕</button>` : ''}
+                            `;
+
+                            // Add click handler if team has group stats
+                            if (hasStats) {
+                                const teamElement = slot.querySelector('.slot-team');
+                                teamElement.addEventListener('click', (e) => {
+                                    e.stopPropagation();
+                                    showGroupMatchResults(team, teamElement);
+                                });
+                            }
+                        }
+                    } else {
+                        slot.innerHTML = `
+                            <span class="slot-label">${group.name}${potNum}</span>
+                            <span class="slot-empty">Pot ${potNum}</span>
+                        `;
+                    }
+
+                    // Drag events
+                    slot.addEventListener('dragover', (e) => {
+                        e.preventDefault();
+                        if (draggedTeam && draggedTeam.pot === potNum && !group.slots[i]) {
+                            if (canPlaceTeam(group, draggedTeam, i)) {
+                                slot.classList.add('drag-over');
+                            } else {
+                                slot.classList.add('invalid');
+                            }
+                        } else if (draggedQualifier && draggedQualifier.pot === potNum && !group.slots[i]) {
+                            // For qualifiers, we don't validate confederation rules yet
+                            slot.classList.add('drag-over');
+                        }
+                    });
+
+                    slot.addEventListener('dragleave', () => {
+                        slot.classList.remove('drag-over', 'invalid');
+                    });
+
+                    slot.addEventListener('drop', (e) => {
+                        e.preventDefault();
+                        slot.classList.remove('drag-over', 'invalid');
+
+                        if (draggedTeam && draggedTeam.pot === potNum && !group.slots[i]) {
+                            if (canPlaceTeam(group, draggedTeam, i)) {
+                                placeTeam(group.name, i, draggedTeam);
+                            }
+                        } else if (draggedQualifier && draggedQualifier.pot === potNum && !group.slots[i]) {
+                            placeQualifier(group.name, i, draggedQualifier);
+                        }
+                    });
+
+                    slotsContainer.appendChild(slot);
+                }
+
+                container.appendChild(card);
+            });
+
+            updateStats();
+            renderValidation();
+        }
+
+        // Place team in group
+        function placeTeam(groupName, slotIndex, team) {
+            groups[groupName].slots[slotIndex] = team;
+            availableTeams = availableTeams.filter(t => t.name !== team.name);
+            renderTeamPool();
+            renderGroups();
+        }
+
+        // Place qualifier in group
+        function placeQualifier(groupName, slotIndex, qualifier) {
+            groups[groupName].slots[slotIndex] = {
+                isQualifier: true,
+                qualifier: qualifier
+            };
+            activeQualifierSpots = activeQualifierSpots.filter(q => q.id !== qualifier.id);
+            renderTeamPool();
+            renderGroups();
+        }
+
+        // Remove team from group
+        function removeTeam(groupName, slotIndex) {
+            const slot = groups[groupName].slots[slotIndex];
+            if (slot) {
+                if (slot.isQualifier) {
+                    // Return qualifier to pool
+                    activeQualifierSpots.push(slot.qualifier);
+                } else {
+                    // Return team to pool
+                    availableTeams.push(slot);
+                }
+                groups[groupName].slots[slotIndex] = null;
+                renderTeamPool();
+                renderGroups();
+            }
+        }
+
+        // Update statistics
+        function updateStats() {
+            const drawnCount = Object.values(groups).reduce((sum, g) =>
+                sum + g.slots.filter(t => t).length, 0);
+
+            const remainingConfirmed = availableTeams.length;
+            const remainingQualifiers = activeQualifierSpots.length;
+
+            document.getElementById('teamsDrawn').textContent = drawnCount;
+            document.getElementById('teamsRemaining').textContent = remainingConfirmed + remainingQualifiers;
+
+            const totalElo = Object.values(groups).reduce((sum, g) => sum + getGroupElo(g), 0);
+            const groupsWithTeams = Object.values(groups).filter(g => g.slots.some(t => t)).length;
+            const avgElo = groupsWithTeams > 0 ? Math.round(totalElo / groupsWithTeams) : 0;
+            document.getElementById('avgElo').textContent = avgElo;
+        }
+
+        // Update result placeholders from current state
+        function updateResultPlaceholders() {
+            // Reset grous
+            Object.keys(grous).forEach(key => grous[key] = []);
+
+            // Reset qualies
+            qualies = {};
+
+            // Fill grous with current group composition
+            Object.entries(groups).forEach(([groupName, group]) => {
+                const groupKey = groupName.toLowerCase();
+                group.slots.forEach(slot => {
+                    if (slot) {
+                        if (slot.isQualifier) {
+                            // Store placeholder for unresolved qualifier
+                            const qual = slot.qualifier;
+                            grous[groupKey].push(`pot${qual.pot}_${qual.slot}`);
+                        } else {
+                            // Store team code
+                            grous[groupKey].push(slot.code.toLowerCase());
+                        }
+                    }
+                });
+            });
+
+            // Fill qualies with resolved qualifiers
+            [...confirmedTeams, ...availableTeams].forEach(team => {
+                if (team.qualifierId && team.qualifierMatches) {
+                    const qualifier = qualifierSpots.find(q => q.id === team.qualifierId);
+                    if (qualifier) {
+                        const key = `pot${qualifier.pot}_${qualifier.slot}`;
+                        qualies[key] = team.code.toLowerCase();
+                    }
+                }
+            });
+
+            // Also check groups for resolved qualifiers
+            Object.values(groups).forEach(group => {
+                group.slots.forEach(slot => {
+                    if (slot && slot.qualifierId && slot.qualifierMatches) {
+                        const qualifier = qualifierSpots.find(q => q.id === slot.qualifierId);
+                        if (qualifier) {
+                            const key = `pot${qualifier.pot}_${qualifier.slot}`;
+                            qualies[key] = slot.code.toLowerCase();
+                        }
+                    }
+                });
+            });
+        }
+
+        // Export current results to console
+        window.exportResults = function() {
+            updateResultPlaceholders();
+            console.log('='.repeat(60));
+            console.log('GROUPS:');
+            console.log('='.repeat(60));
+            console.log('grous = ' + JSON.stringify(grous, null, 2));
+            console.log('');
+            console.log('='.repeat(60));
+            console.log('QUALIFIERS:');
+            console.log('='.repeat(60));
+            console.log('qualies = ' + JSON.stringify(qualies, null, 2));
+            console.log('='.repeat(60));
+            console.log('');
+            console.log('// To load these results later, copy and paste:');
+            console.log(`window.loadResults(${JSON.stringify(grous)}, ${JSON.stringify(qualies)})`);
+            return { grous, qualies };
+        };
+
+        // Load results from external data
+        window.loadResults = function(grousData, qualiesData) {
+            if (grousData) {
+                Object.assign(grous, grousData);
+                console.log('✓ Groups data loaded');
+            }
+            if (qualiesData) {
+                Object.assign(qualies, qualiesData);
+                console.log('✓ Qualifiers data loaded');
+            }
+            console.log('Use applyResults() to apply these to the actual draw');
+        };
+
+        // Apply loaded results to the actual groups
+        window.applyResults = function() {
+            console.log('Applying results to draw...');
+
+            // Clear current groups
+            clearGroups();
+
+            // Apply qualifier results first
+            Object.entries(qualies).forEach(([key, code]) => {
+                // key format: "pot4_7"
+                const match = key.match(/pot(\d+)_(\d+)/);
+                if (match) {
+                    const pot = parseInt(match[1]);
+                    const slot = parseInt(match[2]);
+
+                    // Find the qualifier spot
+                    const qualifier = qualifierSpots.find(q => q.pot === pot && q.slot === slot);
+                    if (qualifier) {
+                        // Find the winning team
+                        const winningTeam = qualifier.teams.find(t => t.code.toLowerCase() === code);
+                        if (winningTeam) {
+                            // Remove from activeQualifierSpots
+                            activeQualifierSpots = activeQualifierSpots.filter(q => q.id !== qualifier.id);
+
+                            // Add to available teams as qualified
+                            const qualifiedTeam = {
+                                ...winningTeam,
+                                pot: qualifier.pot,
+                                slot: qualifier.slot,
+                                qualifierMatches: [], // No match data from real results
+                                qualifierId: qualifier.id
+                            };
+                            availableTeams.push(qualifiedTeam);
+                        }
+                    }
+                }
+            });
+
+            // Apply group compositions
+            Object.entries(grous).forEach(([groupKey, teams]) => {
+                const groupName = groupKey.toUpperCase();
+                const group = groups[groupName];
+
+                if (group) {
+                    teams.forEach((teamCode, index) => {
+                        if (teamCode.startsWith('pot')) {
+                            // This is an unresolved qualifier placeholder
+                            const match = teamCode.match(/pot(\d+)_(\d+)/);
+                            if (match) {
+                                const pot = parseInt(match[1]);
+                                const slot = parseInt(match[2]);
+                                const qualifier = qualifierSpots.find(q => q.pot === pot && q.slot === slot);
+                                if (qualifier) {
+                                    placeQualifier(groupName, index, qualifier);
+                                }
+                            }
+                        } else {
+                            // This is a confirmed team
+                            const team = availableTeams.find(t => t.code.toLowerCase() === teamCode);
+                            if (team) {
+                                placeTeam(groupName, index, team);
+                            }
+                        }
+                    });
+                }
+            });
+
+            renderTeamPool();
+            renderGroups();
+            console.log('✓ Results applied to draw');
+        };
+
+        // Render validation messages
+        function renderValidation() {
+            const container = document.getElementById('validationPanel');
+            const messages = getValidationMessages();
+            
+            container.innerHTML = messages.map(msg => `
+                <div class="validation-item ${msg.type}">
+                    ${msg.type === 'error' ? '✗' : msg.type === 'warning' ? '⚠' : '✓'} ${msg.text}
+                </div>
+            `).join('');
+        }
+
+        // Place preassigned teams (hosts)
+        function placePreassigned() {
+            confirmedTeams.filter(t => t.preassigned).forEach(team => {
+                const groupName = team.preassigned[0];
+                const slotIndex = parseInt(team.preassigned[1]) - 1;
+                
+                if (!groups[groupName].slots[slotIndex]) {
+                    const teamInPool = availableTeams.find(t => t.name === team.name);
+                    if (teamInPool) {
+                        placeTeam(groupName, slotIndex, teamInPool);
+                    }
+                }
+            });
+        }
+
+        // Shuffle array
+        function shuffle(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        // Get the stat value to display based on current mode
+        function getStatDisplay(team) {
+            if (statDisplay === 'change') {
+                return team.change > 0 ? `+${team.change}` : `${team.change}`;
+            } else if (statDisplay === 'talent') {
+                return team.talent_base;
+            } else {
+                return team.elo;
+            }
+        }
+
+        // Backtracking helper for placing teams with swapping strategy
+        function placeTeamsRecursive(teams, groupNames, slotIndex, index = 0) {
+            // Base case: all teams placed
+            if (index >= teams.length) {
+                return true;
+            }
+
+            const team = teams[index];
+            const shuffledGroups = shuffle(groupNames);
+
+            // First try: place in empty slots
+            for (const groupName of shuffledGroups) {
+                const group = groups[groupName];
+
+                // Check if this slot is still empty and team can be placed
+                if (!group.slots[slotIndex] && canPlaceTeam(group, team, slotIndex)) {
+                    // Try placing the team
+                    group.slots[slotIndex] = team;
+                    availableTeams = availableTeams.filter(t => t.name !== team.name);
+
+                    // Recursively try to place the remaining teams
+                    if (placeTeamsRecursive(teams, groupNames, slotIndex, index + 1)) {
+                        return true;
+                    }
+
+                    // Backtrack if placement failed
+                    group.slots[slotIndex] = null;
+                    availableTeams.push(team);
+                }
+            }
+
+            // Second try: if can't place in empty slots, try swapping with already placed teams
+            for (const groupName of shuffledGroups) {
+                const group = groups[groupName];
+
+                // Check if this slot is occupied
+                if (group.slots[slotIndex]) {
+                    const occupyingTeam = group.slots[slotIndex];
+
+                    // Try swapping: can we place current team here instead?
+                    if (canPlaceTeam(group, team, slotIndex)) {
+                        // Remove occupying team temporarily
+                        group.slots[slotIndex] = team;
+                        availableTeams = availableTeams.filter(t => t.name !== team.name);
+                        availableTeams.push(occupyingTeam);
+
+                        // Now try to place the displaced team in remaining empty slots
+                        const remainingTeams = [occupyingTeam, ...teams.slice(index + 1)];
+                        if (placeTeamsRecursive(remainingTeams, groupNames, slotIndex, 0)) {
+                            return true;
+                        }
+
+                        // Swap back if it didn't work
+                        group.slots[slotIndex] = occupyingTeam;
+                        availableTeams = availableTeams.filter(t => t.name !== occupyingTeam.name);
+                        availableTeams.push(team);
+                    }
+                }
+            }
+
+            // Could not place this team in any group
+            return false;
+        }
+
+        // Random draw with constraints
+        function randomDraw() {
+            // Place preassigned if not already
+            placePreassigned();
+
+            // Draw each pot
+            for (let pot = 1; pot <= 4; pot++) {
+                const potTeams = shuffle(availableTeams.filter(t => t.pot === pot));
+                const slotIndex = pot - 1;
+
+                if (pot === 1) {
+                    const emptyPot1Groups = Object.values(groups)
+                        .filter(g => !g.slots[0])
+                        .map(g => g.name);
+
+                    const spain = potTeams.find(t => t.name === 'Spain');
+                    const argentina = potTeams.find(t => t.name === 'Argentina');
+                    const france = potTeams.find(t => t.name === 'France');
+                    const england = potTeams.find(t => t.name === 'England');
+                    const otherTeams = potTeams.filter(t => 
+                        !['Spain', 'Argentina', 'France', 'England'].includes(t.name));
+
+                    // Spain/Argentina: one to Blue/Cyan side, one to Red/Green side
+                    // Then France/England go to the remaining two specific paths
+                    
+                    // Randomly assign Spain to one of the 4 paths
+                    const allPaths = ['blue', 'cyan', 'red', 'green'];
+                    const spainPath = allPaths[Math.floor(Math.random() * 4)];
+                    
+                    // Argentina goes to opposite bracket side
+                    let argentinaPath;
+                    if (spainPath === 'blue' || spainPath === 'cyan') {
+                        // Spain is on left side, Argentina goes to right side (red or green)
+                        argentinaPath = Math.random() < 0.5 ? 'red' : 'green';
+                    } else {
+                        // Spain is on right side, Argentina goes to left side (blue or cyan)
+                        argentinaPath = Math.random() < 0.5 ? 'blue' : 'cyan';
+                    }
+                    
+                    // France and England get the remaining two paths
+                    const usedPaths = [spainPath, argentinaPath];
+                    const remainingPaths = allPaths.filter(p => !usedPaths.includes(p));
+                    const francePath = remainingPaths[Math.floor(Math.random() * 2)];
+                    const englandPath = remainingPaths.find(p => p !== francePath);
+
+                    // Get available groups for each path
+                    const getAvailableGroupsForPath = (path) => {
+                        return shuffle(emptyPot1Groups.filter(g => groupPaths[g] === path));
+                    };
+
+                    // Place Spain
+                    if (spain) {
+                        const spainGroups = getAvailableGroupsForPath(spainPath);
+                        if (spainGroups.length > 0) {
+                            placeTeam(spainGroups[0], 0, spain);
+                        }
+                    }
+
+                    // Place Argentina
+                    if (argentina) {
+                        const argGroups = getAvailableGroupsForPath(argentinaPath);
+                        if (argGroups.length > 0) {
+                            placeTeam(argGroups[0], 0, argentina);
+                        }
+                    }
+
+                    // Place France
+                    if (france) {
+                        const franceGroups = getAvailableGroupsForPath(francePath);
+                        if (franceGroups.length > 0) {
+                            placeTeam(franceGroups[0], 0, france);
+                        }
+                    }
+
+                    // Place England
+                    if (england) {
+                        const englandGroups = getAvailableGroupsForPath(englandPath);
+                        if (englandGroups.length > 0) {
+                            placeTeam(englandGroups[0], 0, england);
+                        }
+                    }
+
+                    // Place remaining pot 1 teams
+                    const remainingGroups = shuffle(Object.values(groups).filter(g => !g.slots[0]).map(g => g.name));
+                    otherTeams.forEach(team => {
+                        if (availableTeams.includes(team) && remainingGroups.length > 0) {
+                            const groupName = remainingGroups.pop();
+                            if (groupName && canPlaceTeam(groups[groupName], team, 0)) {
+                                placeTeam(groupName, 0, team);
+                            }
+                        }
+                    });
+                } else {
+                    // Use backtracking to ensure all teams can be placed
+                    const teamsToPlace = potTeams.filter(t => availableTeams.includes(t));
+                    const emptyGroups = Object.keys(groups).filter(gName => !groups[gName].slots[slotIndex]);
+
+                    if (!placeTeamsRecursive(teamsToPlace, emptyGroups, slotIndex)) {
+                        console.warn(`Could not place all teams in pot ${pot}`);
+                    }
+                }
+            }
+
+            // Place remaining qualifiers into empty slots
+            const shuffledQualifiers = shuffle([...activeQualifierSpots]);
+            shuffledQualifiers.forEach(qualifier => {
+                const slotIndex = qualifier.pot - 1;
+                const emptyGroups = Object.keys(groups).filter(gName => !groups[gName].slots[slotIndex]);
+
+                if (emptyGroups.length > 0) {
+                    const groupName = emptyGroups[Math.floor(Math.random() * emptyGroups.length)];
+                    placeQualifier(groupName, slotIndex, qualifier);
+                }
+            });
+
+            // Update UI after all pots are drawn
+            renderTeamPool();
+            renderGroups();
+        }
+
+        // Clear knockout bracket
+        function clearKnockoutBracket() {
+            document.querySelectorAll('.team-slot').forEach(slot => {
+                // Get original text (e.g., "1E", "2A", "3ABCDF", "W74")
+                const originalText = slot.getAttribute('data-original') || slot.textContent.trim();
+
+                // Store original if not already stored
+                if (!slot.getAttribute('data-original')) {
+                    slot.setAttribute('data-original', originalText);
+                }
+
+                // Reset to original - R32 slots get source label, others just text
+                if (originalText.match(/^[123][A-Z]+$/)) {
+                    // R32 slot with group position
+                    slot.innerHTML = `<span class="source-label">${originalText}</span>`;
+                } else {
+                    // Later round slots (W74, etc.)
+                    slot.textContent = originalText;
+                }
+                slot.classList.remove('filled');
+            });
+        }
+
+        // Clear all groups
+        function clearGroups() {
+            Object.values(groups).forEach(group => {
+                group.slots = [null, null, null, null];
+            });
+            availableTeams = [...confirmedTeams];
+            activeQualifierSpots = JSON.parse(JSON.stringify(qualifierSpots));
+            document.getElementById('qualifyBtn').disabled = false;
+            clearKnockoutBracket();
+            renderTeamPool();
+            renderGroups();
+        }
+
+        // Sort button handlers
+        document.getElementById('sortName').addEventListener('click', () => {
+            sortBy = 'name';
+            document.getElementById('sortName').classList.add('active');
+            document.getElementById('sortElo').classList.remove('active');
+            renderGroups();
+        });
+
+        document.getElementById('sortElo').addEventListener('click', () => {
+            sortBy = 'elo';
+            document.getElementById('sortElo').classList.add('active');
+            document.getElementById('sortName').classList.remove('active');
+            renderGroups();
+        });
+
+        // Pool sort button handlers
+        document.getElementById('poolSortSlot').addEventListener('click', () => {
+            poolSortBy = 'slot';
+            document.getElementById('poolSortSlot').classList.add('active');
+            document.getElementById('poolSortElo').classList.remove('active');
+            renderTeamPool();
+        });
+
+        document.getElementById('poolSortElo').addEventListener('click', () => {
+            poolSortBy = 'elo';
+            document.getElementById('poolSortElo').classList.add('active');
+            document.getElementById('poolSortSlot').classList.remove('active');
+            renderTeamPool();
+        });
+
+        // Control button handlers
+        document.getElementById('qualifyBtn').addEventListener('click', simulateQualifications);
+        document.getElementById('preassignBtn').addEventListener('click', placePreassigned);
+        document.getElementById('randomDrawBtn').addEventListener('click', () => {
+            randomDraw();
+            // Enable simulate groups button after draw
+            document.getElementById('simulateGroupsBtn').disabled = false;
+        });
+        // Stat display dropdown event listener
+        document.getElementById('statDisplay').addEventListener('change', (e) => {
+            statDisplay = e.target.value;
+            // Refresh the team pools and group displays
+            renderTeamPool();
+            renderGroups();
+        });
+
+        document.getElementById('simulateGroupsBtn').addEventListener('click', () => {
+            simulateGroups();
+            // Enable knockout simulation after group stage
+            document.getElementById('simulateKnockoutBtn').disabled = false;
+        });
+        document.getElementById('simulateKnockoutBtn').addEventListener('click', simulateKnockoutStage);
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            clearGroups();
+            document.getElementById('simulateGroupsBtn').disabled = true;
+            document.getElementById('simulateKnockoutBtn').disabled = true;
+            knockoutStage = 'r32';
+            document.getElementById('simulateKnockoutBtn').textContent = '⚽ Simulate Round of 32';
+        });
+
+        // Initialize knockout bracket data attributes
+        function initKnockoutBracket() {
+            document.querySelectorAll('.team-slot').forEach(slot => {
+                const originalText = slot.textContent.trim();
+                slot.setAttribute('data-original', originalText);
+            });
+        }
+
+        // Initialize
+        initGroups();
+        renderTeamPool();
+        renderGroups();
+        initKnockoutBracket();
+    </script>
+</body>
+</html>
